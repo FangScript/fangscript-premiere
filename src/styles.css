@@ -74,11 +74,6 @@ button { font: inherit; }
 .site-nav { position: fixed; z-index: 80; top: 0; left: 0; width: 100%; height: 92px; transition: height .35s ease, background .35s ease, border-color .35s ease; }
 .site-nav.scrolled { height: 70px; background: oklch(0.09 0.023 257 / 78%); border-bottom: 1px solid var(--border); backdrop-filter: blur(18px) saturate(140%); }
 .nav-inner { width: min(1240px, calc(100% - 40px)); height: 100%; margin: auto; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; }
-.brand-mark { position: relative; display: inline-block; width: 29px; height: 31px; transform: skewY(-2deg); }
-.brand-mark:before, .brand-mark i { content: ""; position: absolute; left: 0; height: 8px; border-radius: 3px 1px; transform: skewX(-28deg); }
-.brand-mark:before { width: 29px; top: 3px; background: oklch(0.83 0.14 197); box-shadow: 0 0 16px oklch(0.78 0.17 200 / 45%); }
-.brand-mark i:first-child { width: 22px; top: 13px; background: oklch(0.65 0.21 303); }
-.brand-mark i:last-child { width: 12px; top: 23px; background: oklch(0.54 0.26 297); }
 .desktop-nav { display: flex; gap: 40px; align-self: stretch; }
 .desktop-nav a { position: relative; display: grid; place-items: center; color: var(--muted-foreground); font-size: 13px; text-decoration: none; }
 .desktop-nav a:hover, .desktop-nav a.active { color: var(--foreground); }
@@ -215,7 +210,9 @@ button { font: inherit; }
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
 /* Shared site and inner pages */
-.brand-link { display: inline-flex; align-items: center; gap: 12px; color: var(--foreground); font-family: var(--font-display); font-size: 20px; font-weight: 700; text-decoration: none; }
+.brand-link { display: inline-flex; align-items: center; width: clamp(175px, 16vw, 224px); height: 54px; text-decoration: none; }
+.brand-link img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: left center; }
+.brand-link.compact { width: 58px; }
 .mobile-menu nav > div > a { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--border); color: var(--foreground); font-family: var(--font-display); font-size: 34px; text-decoration: none; }
 .page-hero { position: relative; min-height: 640px; display: flex; align-items: end; overflow: hidden; border-bottom: 1px solid var(--border); background: linear-gradient(110deg, var(--ink), color-mix(in oklab, var(--surface) 86%, var(--background))); }
 .page-hero-glow { position: absolute; inset: 0; background: radial-gradient(ellipse at 78% 38%, color-mix(in oklab, var(--gold) 18%, transparent), transparent 25%), radial-gradient(ellipse at 70% 65%, oklch(0.42 0.18 294 / 18%), transparent 34%), linear-gradient(0deg, var(--background), transparent 45%); }
