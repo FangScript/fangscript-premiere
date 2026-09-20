@@ -5,22 +5,19 @@ import {
   Bot,
   Braces,
   Code2,
-  Github,
   Globe2,
   Layers3,
-  Linkedin,
-  Menu,
   MessageSquare,
   MonitorSmartphone,
   Play,
   Quote,
   Sparkles,
   Workflow,
-  X,
-  Youtube,
   Zap,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { Brand, SiteFooter, SiteHeader } from "@/components/SiteChrome";
 import heroImage from "@/assets/fangscript-hero.jpg";
 import ctaImage from "@/assets/fangscript-cta.jpg";
 import mountainImage from "@/assets/fangscript-mountains.jpg";
@@ -64,15 +61,6 @@ const testimonials = [
   { quote: "The automation has changed how our team works. What used to take hours now happens reliably in the background.", name: "Omar Rahman", company: "Northline Operations", initials: "OR" },
   { quote: "They understood the business problem before proposing technology. That clarity made all the difference.", name: "Maya Ansari", company: "Atelier MA", initials: "MA" },
 ];
-
-function Logo({ compact = false }: { compact?: boolean }) {
-  return (
-    <a href="#home" className="group inline-flex items-center gap-3" aria-label="FangScript home">
-      <span className="brand-mark" aria-hidden="true"><i /><i /></span>
-      {!compact && <span className="font-display text-lg font-bold text-foreground sm:text-xl">FangScript</span>}
-    </a>
-  );
-}
 
 function SectionIntro({ number, eyebrow, title, accent, copy }: { number: string; eyebrow: string; title: string; accent?: string; copy?: string }) {
   return (
@@ -190,16 +178,10 @@ function FeaturedWork() {
 }
 
 export function FangScriptHome() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const [testimonial, setTestimonial] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    onScroll(); window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+
 
   useEffect(() => {
     if (!rootRef.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -223,14 +205,9 @@ export function FangScriptHome() {
     return () => ctx?.revert();
   }, []);
 
-  const scrollTo = (id: string) => { setMenuOpen(false); document.querySelector(id)?.scrollIntoView({ behavior: "smooth" }); };
-
   return (
     <div ref={rootRef} className="site-shell">
-      <header className={`site-nav ${scrolled ? "scrolled" : ""}`}>
-        <div className="nav-inner"><Logo /><nav className="desktop-nav" aria-label="Primary navigation">{[["Home", "#home"], ["Services", "#services"], ["Work", "#work"], ["FAQ", "#faq"]].map(([label, href], i) => <a key={href} className={i === 0 ? "active" : ""} href={href}>{label}</a>)}</nav><a className="nav-cta" href="#contact">Let's Build Together <ArrowRight size={15} /></a><button className="menu-button" aria-label="Open navigation" onClick={() => setMenuOpen(true)}><Menu /></button></div>
-      </header>
-      <AnimatePresence>{menuOpen && <motion.div className="mobile-menu" initial={{ opacity: 0, y: -24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -24 }}><div className="mobile-menu-head"><Logo /><button aria-label="Close navigation" onClick={() => setMenuOpen(false)}><X /></button></div><nav>{[["Home", "#home"], ["Services", "#services"], ["Work", "#work"], ["FAQ", "#faq"], ["Let's build together", "#contact"]].map(([label, href], i) => <motion.button key={href} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }} onClick={() => scrollTo(href)}>{label}<ArrowRight /></motion.button>)}</nav></motion.div>}</AnimatePresence>
+      <SiteHeader />
 
       <main>
         <section id="home" className="hero">
@@ -253,22 +230,22 @@ export function FangScriptHome() {
           <a href="#services" className="scroll-cue" aria-label="Scroll to services"><span>Scroll to explore</span><i /></a>
         </section>
 
-        <section id="services" className="section-shell services-section reveal-section"><div className="section-boundary services-layout"><div><SectionIntro number="01" eyebrow="Services" title="What We Build" copy="From sleek websites to powerful AI systems, we create digital solutions that help businesses grow and operate smarter." /><a className="primary-link compact" href="#work">View All Services <ArrowRight /></a></div><div className="services-grid">{services.map(({ icon: Icon, title, text }) => <motion.article className="service-card" key={title} whileHover={{ y: -7 }}><div><Icon /><ArrowRight className="service-arrow" /></div><h3>{title}</h3><p>{text}</p></motion.article>)}</div></div></section>
+        <section id="services" className="section-shell services-section reveal-section"><div className="section-boundary services-layout"><div><SectionIntro number="01" eyebrow="Services" title="What We Build" copy="From sleek websites to powerful AI systems, we create digital solutions that help businesses grow and operate smarter." /><Link className="primary-link compact" to="/services">View All Services <ArrowRight /></Link></div><div className="services-grid">{services.map(({ icon: Icon, title, text }) => <motion.article className="service-card" key={title} whileHover={{ y: -7 }}><div><Icon /><ArrowRight className="service-arrow" /></div><h3>{title}</h3><p>{text}</p></motion.article>)}</div></div></section>
 
         <FeaturedWork />
 
-        <section className="section-shell why-section"><img className="parallax-bg" src={mountainImage} alt="Dark mountain wall illuminated by amber light" loading="lazy" width={1920} height={1024} /><div className="why-veil" /><div className="section-boundary why-layout reveal-section"><div><SectionIntro number="03" eyebrow="Why FangScript" title="We're not just developers." accent="We're problem solvers." copy="FangScript helps businesses turn real workflows into software, AI systems and automation. No fluff. Just practical solutions that work." /><a className="primary-link compact" href="#contact">Learn More About Us <ArrowRight /></a></div><div className="stats"><div><strong data-stat="6">0+</strong><span>Successful Projects</span></div><div><strong data-stat="100">0%</strong><span>Client Focused</span></div><div><strong>∞</strong><span>Possibilities</span></div></div><div className="floating-code"><div className="code-window back"><i /><i /><i /><span>const future = build(idea)</span><b>automation.connect()</b><em>launch → scale</em></div><div className="code-window front"><i /><i /><i /><span>export function intelligence() {'{'}</span><b>&nbsp;&nbsp;return solve(problem)</b><em>{'}'}</em><Zap /></div></div></div></section>
+        <section className="section-shell why-section"><img className="parallax-bg" src={mountainImage} alt="Dark mountain wall illuminated by amber light" loading="lazy" width={1920} height={1024} /><div className="why-veil" /><div className="section-boundary why-layout reveal-section"><div><SectionIntro number="03" eyebrow="Why FangScript" title="We're not just developers." accent="We're problem solvers." copy="FangScript helps businesses turn real workflows into software, AI systems and automation. No fluff. Just practical solutions that work." /><Link className="primary-link compact" to="/about">Learn More About Us <ArrowRight /></Link></div><div className="stats"><div><strong data-stat="6">0+</strong><span>Successful Projects</span></div><div><strong data-stat="100">0%</strong><span>Client Focused</span></div><div><strong>∞</strong><span>Possibilities</span></div></div><div className="floating-code"><div className="code-window back"><i /><i /><i /><span>const future = build(idea)</span><b>automation.connect()</b><em>launch → scale</em></div><div className="code-window front"><i /><i /><i /><span>export function intelligence() {'{'}</span><b>&nbsp;&nbsp;return solve(problem)</b><em>{'}'}</em><Zap /></div></div></div></section>
 
         <section className="section-shell tech-section"><div className="section-boundary tech-layout reveal-section"><SectionIntro number="04" eyebrow="Technology" title="Modern Stack." accent="Real Results." copy="We use the latest and most reliable technologies to build scalable, secure and high-performing solutions." /><div className="tech-grid">{["React", "Next.js", "Node.js", "Python", "MongoDB", "Supabase", "Firebase", "AWS", "Vercel"].map((name, i) => <motion.div className="tech-card" key={name} whileHover={{ y: -5, scale: 1.04 }}><span>{i % 3 === 0 ? <Code2 /> : i % 3 === 1 ? <Globe2 /> : <Zap />}</span><b>{name}</b></motion.div>)}</div></div></section>
 
         <section className="section-shell process-section"><div className="section-boundary process-layout reveal-section"><SectionIntro number="05" eyebrow="Our process" title="From Idea to Impact" copy="We keep things simple, transparent, and focused on what matters — your success." /><div className="process-grid"><div className="process-line"><i className="process-progress" /></div>{processSteps.map(([number, title, text]) => <div className="process-step" key={number}><span>{number}</span><h3>{title}</h3><p>{text}</p></div>)}</div></div></section>
 
-        <section id="faq" className="section-shell testimonial-section"><div className="section-boundary testimonial-layout reveal-section"><SectionIntro number="06" eyebrow="Clients" title="What Our Clients Say" copy="Don't just take our word for it. Here's what businesses have to say about working with us." /><div className="testimonial-area"><AnimatePresence mode="wait"><motion.blockquote key={testimonial} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }} transition={{ duration: 0.42 }}><Quote /><p>“{testimonials[testimonial].quote}”</p><footer><span>{testimonials[testimonial].initials}</span><div><strong>{testimonials[testimonial].name}</strong><small>{testimonials[testimonial].company}</small></div></footer></motion.blockquote></AnimatePresence><div className="testimonial-controls"><button aria-label="Previous testimonial" onClick={() => setTestimonial((testimonial - 1 + testimonials.length) % testimonials.length)}><ArrowLeft /></button><span>{testimonial + 1} / {testimonials.length}</span><button aria-label="Next testimonial" onClick={() => setTestimonial((testimonial + 1) % testimonials.length)}><ArrowRight /></button></div></div></div></section>
+        <section className="section-shell testimonial-section"><div className="section-boundary testimonial-layout reveal-section"><SectionIntro number="06" eyebrow="Clients" title="What Our Clients Say" copy="Don't just take our word for it. Here's what businesses have to say about working with us." /><div className="testimonial-area"><AnimatePresence mode="wait"><motion.blockquote key={testimonial} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }} transition={{ duration: 0.42 }}><Quote /><p>“{testimonials[testimonial].quote}”</p><footer><span>{testimonials[testimonial].initials}</span><div><strong>{testimonials[testimonial].name}</strong><small>{testimonials[testimonial].company}</small></div></footer></motion.blockquote></AnimatePresence><div className="testimonial-controls"><button aria-label="Previous testimonial" onClick={() => setTestimonial((testimonial - 1 + testimonials.length) % testimonials.length)}><ArrowLeft /></button><span>{testimonial + 1} / {testimonials.length}</span><button aria-label="Next testimonial" onClick={() => setTestimonial((testimonial + 1) % testimonials.length)}><ArrowRight /></button></div></div></div></section>
 
-        <section id="contact" className="final-cta"><img src={ctaImage} alt="Mountain valley at an orange sunset" loading="lazy" width={1920} height={768} /><div className="cta-veil" /><div className="grain" /><div className="section-boundary cta-layout reveal-section"><div><div className="section-kicker">Let's talk</div><h2>Have a Project in Mind?</h2><p>Tell us what you're trying to build. We'll help you turn your idea into a powerful digital solution — with the right technology.</p></div><a className="gold-button" href="mailto:hello@fangscript.com">Get in Touch <ArrowRight /></a><div className="cta-brand"><Logo /><p>Crafted with passion <span>•</span> Built for your brand.</p></div></div></section>
+        <section id="contact" className="final-cta"><img src={ctaImage} alt="Mountain valley at an orange sunset" loading="lazy" width={1920} height={768} /><div className="cta-veil" /><div className="grain" /><div className="section-boundary cta-layout reveal-section"><div><div className="section-kicker">Let's talk</div><h2>Have a Project in Mind?</h2><p>Tell us what you're trying to build. We'll help you turn your idea into a powerful digital solution — with the right technology.</p></div><Link className="gold-button" to="/contact">Get in Touch <ArrowRight /></Link><div className="cta-brand"><Brand /><p>Crafted with passion <span>•</span> Built for your brand.</p></div></div></section>
       </main>
 
-      <footer className="site-footer"><div className="section-boundary footer-inner"><small>© 2025 FangScript. All rights reserved.</small><nav><a href="#home">Home</a><a href="#services">Services</a><a href="#work">Work</a><a href="#faq">FAQ</a></nav><div className="socials"><a href="https://github.com" aria-label="GitHub"><Github /></a><a href="https://linkedin.com" aria-label="LinkedIn"><Linkedin /></a><a href="https://x.com" aria-label="X"><X /></a><a href="https://youtube.com" aria-label="YouTube"><Youtube /></a></div></div></footer>
+      <SiteFooter />
     </div>
   );
 }

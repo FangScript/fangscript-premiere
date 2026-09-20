@@ -1,0 +1,3 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { ContactPage } from "@/components/AgencyPages";
+export const Route = createFileRoute("/contact")({ head: () => ({ meta: [{ title: "Start a Project — FangScript" }, { name: "description", content: "Tell FangScript about your website, application, AI, or automation project." }, { property: "og:title", content: "Start a Project — FangScript" }, { property: "og:description", content: "Share your idea or challenge and begin a focused conversation with FangScript." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }), component: ContactPage });
