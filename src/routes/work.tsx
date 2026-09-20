@@ -1,0 +1,3 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { WorkPage } from "@/components/AgencyPages";
+export const Route = createFileRoute("/work")({ head: () => ({ meta: [{ title: "Selected Work — FangScript" }, { name: "description", content: "Explore selected FangScript websites, applications, AI agents, and automation projects." }, { property: "og:title", content: "Selected Work — FangScript" }, { property: "og:description", content: "Purposeful digital products and experiences created by FangScript." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }), component: WorkPage });
