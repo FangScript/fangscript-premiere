@@ -102,6 +102,7 @@ function ProjectVisual({ type }: { type: Project["visual"] }) {
 }
 
 function ProjectCard({ project, active, onDragEnd }: { project: Project; active: boolean; onDragEnd?: (offset: number) => void }) {
+  const hoverMotion = active ? { whileHover: { y: -6 } } : {};
   return (
     <motion.article
       className={`project-card ${active ? "is-active" : ""}`}
@@ -109,7 +110,7 @@ function ProjectCard({ project, active, onDragEnd }: { project: Project; active:
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.12}
       onDragEnd={(_, info) => onDragEnd?.(info.offset.x)}
-      whileHover={active ? { y: -6 } : undefined}
+      {...hoverMotion}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
     >
       <div className="project-media"><ProjectVisual type={project.visual} /><div className="media-shade" /></div>
@@ -196,7 +197,7 @@ export function FangScriptHome() {
         gsap.fromTo(".process-progress", { scaleX: 0 }, { scaleX: 1, ease: "none", scrollTrigger: { trigger: ".process-grid", start: "top 75%", end: "bottom 55%", scrub: 0.8 } });
         gsap.to(".parallax-bg", { yPercent: 12, ease: "none", scrollTrigger: { trigger: ".why-section", start: "top bottom", end: "bottom top", scrub: 1 } });
         gsap.utils.toArray<HTMLElement>("[data-stat]").forEach((el) => {
-          const end = Number(el.dataset.stat ?? 0);
+          const end = Number(el.dataset["stat"] ?? 0);
           const value = { n: 0 };
           gsap.to(value, { n: end, duration: 1.7, ease: "power2.out", onUpdate: () => { el.textContent = `${Math.round(value.n)}${end === 100 ? "%" : "+"}`; }, scrollTrigger: { trigger: el, start: "top 88%", once: true } });
         });
@@ -240,7 +241,7 @@ export function FangScriptHome() {
 
         <section className="section-shell process-section"><div className="section-boundary process-layout reveal-section"><SectionIntro number="05" eyebrow="Our process" title="From Idea to Impact" copy="We keep things simple, transparent, and focused on what matters — your success." /><div className="process-grid"><div className="process-line"><i className="process-progress" /></div>{processSteps.map(([number, title, text]) => <div className="process-step" key={number}><span>{number}</span><h3>{title}</h3><p>{text}</p></div>)}</div></div></section>
 
-        <section className="section-shell testimonial-section"><div className="section-boundary testimonial-layout reveal-section"><SectionIntro number="06" eyebrow="Clients" title="What Our Clients Say" copy="Don't just take our word for it. Here's what businesses have to say about working with us." /><div className="testimonial-area"><AnimatePresence mode="wait"><motion.blockquote key={testimonial} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }} transition={{ duration: 0.42 }}><Quote /><p>“{testimonials[testimonial].quote}”</p><footer><span>{testimonials[testimonial].initials}</span><div><strong>{testimonials[testimonial].name}</strong><small>{testimonials[testimonial].company}</small></div></footer></motion.blockquote></AnimatePresence><div className="testimonial-controls"><button aria-label="Previous testimonial" onClick={() => setTestimonial((testimonial - 1 + testimonials.length) % testimonials.length)}><ArrowLeft /></button><span>{testimonial + 1} / {testimonials.length}</span><button aria-label="Next testimonial" onClick={() => setTestimonial((testimonial + 1) % testimonials.length)}><ArrowRight /></button></div></div></div></section>
+        <section className="section-shell testimonial-section"><div className="section-boundary testimonial-layout reveal-section"><SectionIntro number="06" eyebrow="Clients" title="What Our Clients Say" copy="Don't just take our word for it. Here's what businesses have to say about working with us." /><div className="testimonial-area">{testimonials[testimonial] && <AnimatePresence mode="wait"><motion.blockquote key={testimonial} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }} transition={{ duration: 0.42 }}><Quote /><p>“{testimonials[testimonial].quote}”</p><footer><span>{testimonials[testimonial].initials}</span><div><strong>{testimonials[testimonial].name}</strong><small>{testimonials[testimonial].company}</small></div></footer></motion.blockquote></AnimatePresence>}<div className="testimonial-controls"><button aria-label="Previous testimonial" onClick={() => setTestimonial((testimonial - 1 + testimonials.length) % testimonials.length)}><ArrowLeft /></button><span>{testimonial + 1} / {testimonials.length}</span><button aria-label="Next testimonial" onClick={() => setTestimonial((testimonial + 1) % testimonials.length)}><ArrowRight /></button></div></div></div></section>
 
         <section id="contact" className="final-cta"><img src={ctaImage} alt="Mountain valley at an orange sunset" loading="lazy" width={1920} height={768} /><div className="cta-veil" /><div className="grain" /><div className="section-boundary cta-layout reveal-section"><div><div className="section-kicker">Let's talk</div><h2>Have a Project in Mind?</h2><p>Tell us what you're trying to build. We'll help you turn your idea into a powerful digital solution — with the right technology.</p></div><Link className="gold-button" to="/contact">Get in Touch <ArrowRight /></Link><div className="cta-brand"><Brand /><p>Crafted with passion <span>•</span> Built for your brand.</p></div></div></section>
       </main>
