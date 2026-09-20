@@ -2,16 +2,20 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   ArrowLeft,
   ArrowRight,
+  Atom,
   Bot,
   Braces,
+  Cloud,
   Code2,
-  Globe2,
+  Database,
+  Flame,
+  Hexagon,
   Layers3,
   MessageSquare,
   MonitorSmartphone,
-  Play,
   Quote,
-  Sparkles,
+  ServerCog,
+  Triangle,
   Workflow,
   Zap,
 } from "lucide-react";
@@ -21,6 +25,12 @@ import { Brand, SiteFooter, SiteHeader } from "@/components/SiteChrome";
 import heroImage from "@/assets/fangscript-hero.jpg";
 import ctaImage from "@/assets/fangscript-cta.jpg";
 import mountainImage from "@/assets/fangscript-mountains.jpg";
+import beautyProject from "@/assets/project-beauty.jpg";
+import dashboardProject from "@/assets/project-dashboard.jpg";
+import assistantProject from "@/assets/project-assistant.jpg";
+import jewelleryProject from "@/assets/project-jewellery.jpg";
+import supportProject from "@/assets/project-support.jpg";
+import workflowProject from "@/assets/project-workflow.jpg";
 
 type Category = "All" | "Websites" | "Web Apps" | "AI" | "Automation";
 type Project = {
@@ -62,6 +72,27 @@ const testimonials = [
   { quote: "They understood the business problem before proposing technology. That clarity made all the difference.", name: "Maya Ansari", company: "Atelier MA", initials: "MA" },
 ];
 
+const projectImages: Record<Project["visual"], { src: string; alt: string }> = {
+  beauty: { src: beautyProject, alt: "Luxury beauty and wellness website interface" },
+  dashboard: { src: dashboardProject, alt: "Business automation analytics dashboard interface" },
+  assistant: { src: assistantProject, alt: "FangScript AI assistant interface" },
+  jewellery: { src: jewelleryProject, alt: "Luxury jewellery ecommerce website interface" },
+  support: { src: supportProject, alt: "AI customer support operations interface" },
+  workflow: { src: workflowProject, alt: "Business workflow automation builder interface" },
+};
+
+const technologies = [
+  { name: "React", icon: Atom, tone: "cyan" },
+  { name: "Next.js", icon: Triangle, tone: "ivory" },
+  { name: "Node.js", icon: Hexagon, tone: "green" },
+  { name: "Python", icon: Code2, tone: "blue" },
+  { name: "MongoDB", icon: Database, tone: "green" },
+  { name: "Supabase", icon: Zap, tone: "mint" },
+  { name: "Firebase", icon: Flame, tone: "amber" },
+  { name: "AWS", icon: Cloud, tone: "orange" },
+  { name: "Vercel", icon: ServerCog, tone: "ivory" },
+];
+
 function SectionIntro({ number, eyebrow, title, accent, copy }: { number: string; eyebrow: string; title: string; accent?: string; copy?: string }) {
   return (
     <div className="section-intro">
@@ -72,31 +103,12 @@ function SectionIntro({ number, eyebrow, title, accent, copy }: { number: string
   );
 }
 
-function ProjectVisual({ type }: { type: Project["visual"] }) {
-  if (type === "beauty" || type === "jewellery") {
-    return (
-      <div className={`project-screen ${type}`}>
-        <div className="screen-nav"><span>FANG</span><i /><i /><b>SHOP</b></div>
-        <div className="luxury-copy"><small>{type === "beauty" ? "TIMELESS BEAUTY" : "AL NOOR"}</small><strong>{type === "beauty" ? "Beauty, beyond convention." : "A point of view."}</strong><span>Discover the collection</span></div>
-        <div className="product-orbit"><i /><i /><i /></div>
-      </div>
-    );
-  }
-  if (type === "dashboard" || type === "workflow") {
-    return (
-      <div className={`project-screen ${type}`}>
-        <aside><i /><i /><i /><i /><i /></aside>
-        <div className="dash-main"><div className="screen-nav"><span>OVERVIEW</span><b>LIVE</b></div><div className="metrics"><i /><i /><i /></div><div className="chart"><svg viewBox="0 0 500 120" preserveAspectRatio="none"><path d="M0 96 C55 80 74 102 126 64 S210 78 254 40 S345 69 390 33 S446 52 500 12" /></svg></div><div className="bars"><i /><i /><i /><i /><i /><i /><i /><i /></div></div>
-      </div>
-    );
-  }
+function ProjectVisual({ type, eager = false }: { type: Project["visual"]; eager?: boolean }) {
+  const image = projectImages[type];
   return (
-    <div className={`project-screen ${type}`}>
-      <div className="ai-aura"><Bot size={32} /></div>
-      <strong>{type === "support" ? "How can we help today?" : "Hi! I'm your FangScript assistant."}</strong>
-      <p>{type === "support" ? "Search customer history and resolve requests." : "How can I help you today?"}</p>
-      <div className="chat-input"><span>Type your message…</span><ArrowRight size={16} /></div>
-      <div className="chat-lines"><i /><i /><i /></div>
+    <div className={`project-screen project-screen-${type}`}>
+      <img src={image.src} alt={image.alt} width={1536} height={960} loading={eager ? "eager" : "lazy"} draggable={false} />
+      <div className="project-screen-glass" />
     </div>
   );
 }
@@ -222,9 +234,9 @@ export function FangScriptHome() {
               <motion.div className="hero-actions" variants={{ hidden: { opacity: 0, scale: 0.95 }, show: { opacity: 1, scale: 1 } }}><a className="primary-link" href="#work">Explore Our Work <ArrowRight /></a><a className="text-link" href="#work">View Projects <span>↗</span></a></motion.div>
             </motion.div>
             <motion.div className="device-scene" initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55, duration: 1.15, ease: [0.16, 1, 0.3, 1] }} aria-label="FangScript projects shown on laptop, tablet and phone">
-              <div className="laptop"><div className="device-top"><ProjectVisual type="jewellery" /></div><div className="device-base" /></div>
-              <div className="tablet"><ProjectVisual type="beauty" /></div>
-              <div className="phone"><ProjectVisual type="assistant" /></div>
+              <div className="laptop"><div className="device-top"><ProjectVisual type="jewellery" eager /></div><div className="device-base" /></div>
+              <div className="tablet"><ProjectVisual type="beauty" eager /></div>
+              <div className="phone"><ProjectVisual type="assistant" eager /></div>
               <div className="scene-note">A premium web experience<br />for a timeless brand.</div>
             </motion.div>
           </div>
@@ -237,7 +249,7 @@ export function FangScriptHome() {
 
         <section className="section-shell why-section"><img className="parallax-bg" src={mountainImage} alt="Dark mountain wall illuminated by amber light" loading="lazy" width={1920} height={1024} /><div className="why-veil" /><div className="section-boundary why-layout reveal-section"><div><SectionIntro number="03" eyebrow="Why FangScript" title="We're not just developers." accent="We're problem solvers." copy="FangScript helps businesses turn real workflows into software, AI systems and automation. No fluff. Just practical solutions that work." /><Link className="primary-link compact" to="/about">Learn More About Us <ArrowRight /></Link></div><div className="stats"><div><strong data-stat="6">0+</strong><span>Successful Projects</span></div><div><strong data-stat="100">0%</strong><span>Client Focused</span></div><div><strong>∞</strong><span>Possibilities</span></div></div><div className="floating-code"><div className="code-window back"><i /><i /><i /><span>const future = build(idea)</span><b>automation.connect()</b><em>launch → scale</em></div><div className="code-window front"><i /><i /><i /><span>export function intelligence() {'{'}</span><b>&nbsp;&nbsp;return solve(problem)</b><em>{'}'}</em><Zap /></div></div></div></section>
 
-        <section className="section-shell tech-section"><div className="section-boundary tech-layout reveal-section"><SectionIntro number="04" eyebrow="Technology" title="Modern Stack." accent="Real Results." copy="We use the latest and most reliable technologies to build scalable, secure and high-performing solutions." /><div className="tech-grid">{["React", "Next.js", "Node.js", "Python", "MongoDB", "Supabase", "Firebase", "AWS", "Vercel"].map((name, i) => <motion.div className="tech-card" key={name} whileHover={{ y: -5, scale: 1.04 }}><span>{i % 3 === 0 ? <Code2 /> : i % 3 === 1 ? <Globe2 /> : <Zap />}</span><b>{name}</b></motion.div>)}</div></div></section>
+        <section className="section-shell tech-section"><div className="section-boundary tech-layout reveal-section"><SectionIntro number="04" eyebrow="Technology" title="Modern Stack." accent="Real Results." copy="We use the latest and most reliable technologies to build scalable, secure and high-performing solutions." /><div className="tech-grid">{technologies.map(({ name, icon: Icon, tone }) => <motion.div className={`tech-card tone-${tone}`} key={name} whileHover={{ y: -5, scale: 1.04 }}><span><Icon /></span><b>{name}</b></motion.div>)}</div></div></section>
 
         <section className="section-shell process-section"><div className="section-boundary process-layout reveal-section"><SectionIntro number="05" eyebrow="Our process" title="From Idea to Impact" copy="We keep things simple, transparent, and focused on what matters — your success." /><div className="process-grid"><div className="process-line"><i className="process-progress" /></div>{processSteps.map(([number, title, text]) => <div className="process-step" key={number}><span>{number}</span><h3>{title}</h3><p>{text}</p></div>)}</div></div></section>
 
