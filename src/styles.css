@@ -86,7 +86,7 @@ button { font: inherit; }
 .nav-cta { justify-self: end; display: inline-flex; align-items: center; gap: 9px; border: 1px solid var(--gold); border-radius: 999px; padding: 10px 17px; color: var(--foreground); font-size: 12px; text-decoration: none; transition: background .25s, color .25s; }
 .nav-cta:hover { background: var(--gold); color: var(--primary-foreground); }
 .menu-button { display: none; justify-self: end; border: 0; background: transparent; color: var(--foreground); }
-.mobile-menu { position: fixed; inset: 0; z-index: 100; padding: 28px 24px; background: color-mix(in oklab, var(--ink) 96%, transparent); backdrop-filter: blur(22px); }
+.mobile-menu { position: fixed; inset: 0; z-index: 100; padding: 28px 24px; background: var(--ink); backdrop-filter: blur(22px); overflow-y: auto; }
 .mobile-menu-head { display: flex; align-items: center; justify-content: space-between; }
 .mobile-menu-head button { border: 0; background: none; color: var(--foreground); }
 .mobile-menu nav { display: grid; margin-top: 80px; }
