@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { ArrowRight, Github, Linkedin, Menu, X, Youtube } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
+import fangScriptLogo from "@/assets/fangscript-lab-logo.png.asset.json";
 
 const links = [
   ["Home", "/"],
@@ -12,7 +13,7 @@ const links = [
 ] as const;
 
 export function Brand({ compact = false }: { compact?: boolean }) {
-  return <Link to="/" className="brand-link" aria-label="FangScript home"><span className="brand-mark" aria-hidden="true"><i /><i /></span>{!compact && <span>FangScript</span>}</Link>;
+  return <Link to="/" className={`brand-link${compact ? " compact" : ""}`} aria-label="FangScript Lab home"><img src={fangScriptLogo.url} alt="FangScript Lab — Build. Scale. Grow." /></Link>;
 }
 
 export function SiteHeader() {
