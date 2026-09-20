@@ -210,7 +210,8 @@ button { font: inherit; }
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
 /* Shared site and inner pages */
-.brand-link { display: inline-flex; align-items: center; width: clamp(205px, 19vw, 268px); height: 66px; text-decoration: none; }
+.brand-link { display: inline-flex; align-items: center; width: clamp(205px, 19vw, 268px); height: 62px; text-decoration: none; transition: height .3s ease, width .3s ease; }
+.site-nav.scrolled .brand-link { height: 46px; }
 .brand-link img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: left center; }
 .brand-link.compact { width: 70px; height: 70px; }
 .mobile-menu nav > div > a { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--border); color: var(--foreground); font-family: var(--font-display); font-size: 34px; text-decoration: none; }
