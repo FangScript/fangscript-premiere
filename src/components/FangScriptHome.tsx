@@ -9,7 +9,6 @@ import {
   Code2,
   Database,
   Flame,
-  Globe2,
   Hexagon,
   Layers3,
   MessageSquare,
