@@ -18,10 +18,15 @@ import {
   Triangle,
   Workflow,
   Zap,
+  TrendingUp,
+  Palette,
+  Network,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Brand, SiteFooter, SiteHeader } from "@/components/SiteChrome";
+import { ChatbotWidget } from "@/components/ChatbotWidget";
+import { CookieConsent } from "@/components/CookieConsent";
 import heroImage from "@/assets/fangscript-hero.jpg";
 import ctaImage from "@/assets/fangscript-cta.jpg";
 import mountainImage from "@/assets/fangscript-mountains.jpg";
@@ -51,12 +56,11 @@ const projects: Project[] = [
 ];
 
 const services = [
-  { icon: MonitorSmartphone, title: "Websites", text: "Modern, fast and responsive business websites." },
-  { icon: Layers3, title: "Web Apps", text: "Custom web applications for your unique needs." },
-  { icon: Bot, title: "AI Agents", text: "Intelligent agents that work for you." },
-  { icon: MessageSquare, title: "Chatbots", text: "Smart chat experiences for better customer support." },
-  { icon: Workflow, title: "Automation", text: "Eliminate repetitive work and boost productivity." },
-  { icon: Braces, title: "APIs & AI Systems", text: "Connect, extend and power your products." },
+  { icon: Code2, title: "Tech & Software", text: "Custom web applications, microservices, and modern cloud architecture." },
+  { icon: Bot, title: "AI & Automation", text: "Autonomous agents, enterprise RAG knowledge bases, and smart chat." },
+  { icon: TrendingUp, title: "Growth & Analytics", text: "High-conversion landing architectures and attribution data systems." },
+  { icon: Palette, title: "Content & Creative", text: "Distinguished brand identities, Figma design systems, and technical copy." },
+  { icon: Network, title: "Systems & Data", text: "Connected business tools, n8n workflows, and transactional data pipelines." },
 ];
 
 const processSteps = [
@@ -259,6 +263,8 @@ export function FangScriptHome() {
       </main>
 
       <SiteFooter />
+      <ChatbotWidget />
+      <CookieConsent />
     </div>
   );
 }

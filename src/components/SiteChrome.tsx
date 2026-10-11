@@ -2,6 +2,9 @@ import { AnimatePresence, motion } from "motion/react";
 import { ArrowRight, Github, Linkedin, Menu, X, Youtube } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
+import { ChatbotWidget } from "@/components/ChatbotWidget";
+import { CookieConsent } from "@/components/CookieConsent";
+
 const links = [
   ["Home", "/"],
   ["Services", "/services"],
@@ -46,10 +49,48 @@ export function SiteHeader() {
 }
 
 export function SiteFooter() {
-  return <footer className="site-footer"><div className="section-boundary footer-top"><div><Brand /><p>Crafted with passion <span>•</span> Built for your brand.</p></div><div className="footer-columns"><nav aria-label="Footer navigation">{links.map(([label, to]) => <Link key={to} to={to}>{label}</Link>)}</nav><div className="socials"><a href="https://github.com" aria-label="GitHub"><Github /></a><a href="https://linkedin.com" aria-label="LinkedIn"><Linkedin /></a><a href="https://x.com" aria-label="X"><X /></a><a href="https://youtube.com" aria-label="YouTube"><Youtube /></a></div></div></div><div className="section-boundary footer-bottom"><small>© 2026 FangScript. All rights reserved.</small><span>AI • WEBSITES • AUTOMATION</span></div></footer>;
+  return (
+    <footer className="site-footer">
+      <div className="section-boundary footer-top">
+        <div>
+          <Brand />
+          <p>Crafted with passion <span>•</span> Built for your brand.</p>
+        </div>
+        <div className="footer-columns">
+          <nav aria-label="Footer navigation">
+            {links.map(([label, to]) => (
+              <Link key={to} to={to}>{label}</Link>
+            ))}
+            <Link to="/privacy">Privacy</Link>
+            <Link to="/terms">Terms</Link>
+          </nav>
+          <div className="socials">
+            <a href="https://github.com" aria-label="GitHub"><Github /></a>
+            <a href="https://linkedin.com" aria-label="LinkedIn"><Linkedin /></a>
+            <a href="https://x.com" aria-label="X"><X /></a>
+            <a href="https://youtube.com" aria-label="YouTube"><Youtube /></a>
+          </div>
+        </div>
+      </div>
+      <div className="section-boundary footer-bottom">
+        <small>© 2026 FangScript. All rights reserved. • <Link to="/privacy" className="hover:underline text-slate-400">Privacy Policy</Link> • <Link to="/terms" className="hover:underline text-slate-400">Terms of Service</Link></small>
+        <span>BUILD • AUTOMATE • GROW</span>
+      </div>
+    </footer>
+  );
 }
 
-export function SiteFrame({ children }: { children: ReactNode }) { return <div className="site-shell"><SiteHeader />{children}<SiteFooter /></div>; }
+export function SiteFrame({ children }: { children: ReactNode }) {
+  return (
+    <div className="site-shell">
+      <SiteHeader />
+      {children}
+      <SiteFooter />
+      <ChatbotWidget />
+      <CookieConsent />
+    </div>
+  );
+}
 
 export function PageHero({ eyebrow, title, accent, copy }: { eyebrow: string; title: string; accent?: string; copy: string }) {
   return <section className="page-hero"><div className="page-hero-glow" /><div className="grain" /><motion.div className="section-boundary page-hero-inner" initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .75, ease: [0.16, 1, .3, 1] }}><div className="eyebrow"><i />{eyebrow}</div><h1>{title}{accent && <em>{accent}</em>}</h1><p>{copy}</p></motion.div></section>;
@@ -58,3 +99,4 @@ export function PageHero({ eyebrow, title, accent, copy }: { eyebrow: string; ti
 export function PageCta({ title = "Ready to build something useful?", copy = "Tell us where you want to go. We'll help shape the clearest path from idea to launch." }: { title?: string; copy?: string }) {
   return <section className="page-cta"><div className="section-boundary"><div><span>Start a conversation</span><h2>{title}</h2><p>{copy}</p></div><Link to="/contact" className="gold-button">Start a Project <ArrowRight /></Link></div></section>;
 }
+
