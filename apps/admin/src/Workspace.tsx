@@ -173,7 +173,7 @@ export async function api(path: string, options: RequestInit = {}, retry = true)
   }
   const data = await r
     .json()
-    .catch(() => ({ error: "The login service is offline. Start the backend services, then try again." }));
+    .catch(() => { throw new Error("The login service is unavailable. Please try again later."); });
   if (!r.ok) throw new Error(data.error || data.detail || "Unable to complete this request");
   return data;
 }

@@ -1,6 +1,6 @@
 import "./lib/error-capture";
 import { readFile } from "node:fs/promises";
-import { extname, join, normalize } from "node:path";
+import { extname, join, normalize, sep } from "node:path";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
@@ -21,7 +21,9 @@ async function serveWorkspaceEntry(request: Request): Promise<Response | undefin
       : undefined;
   if (!workspace) return undefined;
   try {
-    const body = await readFile(join(process.cwd(), ".output", "public", workspace, "index.html"));
+    const html = await readFile(join(process.cwd(), ".output", "public", workspace, "index.html"), "utf8");
+    // Rotate delivery URLs after the previous HTML fallback was cached by the CDN.
+    const body = html.replace(/(\/(?:admin|portal)\/assets\/[^"?]+)(")/g, "$1?delivery=2$2");
     return new Response(request.method === "HEAD" ? null : body, {
       headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache" },
     });
@@ -39,7 +41,7 @@ async function serveWorkspaceAsset(request: Request): Promise<Response | undefin
   const relative = match[2]!;
   const root = join(process.cwd(), ".output", "public", workspace);
   const file = normalize(join(root, relative));
-  if (file !== root && !file.startsWith(root + "/")) return undefined;
+  if (file !== root && !file.startsWith(root + sep)) return new Response("Not found", { status: 404 });
   try {
     const body = await readFile(file);
     const contentTypes: Record<string, string> = {
@@ -58,11 +60,14 @@ async function serveWorkspaceAsset(request: Request): Promise<Response | undefin
     return new Response(request.method === "HEAD" ? null : body, {
       headers: {
         "content-type": contentTypes[extname(file).toLowerCase()] ?? "application/octet-stream",
-        "cache-control": "public, max-age=31536000, immutable",
+        "cache-control": relative.startsWith("assets/") ? "public, max-age=31536000, immutable" : "no-cache",
       },
     });
   } catch {
-    return undefined;
+    return new Response("Workspace asset not found", {
+      status: 404,
+      headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" },
+    });
   }
 }
 
