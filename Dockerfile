@@ -10,15 +10,19 @@ RUN pnpm build
 # public delivery image for path-based hosting on a single domain.
 FROM node:24-alpine AS admin-build
 WORKDIR /workspace/admin
+# The workspace build needs TypeScript/Vite devDependencies. Keep production
+# mode for the final runtime image only.
+ENV NODE_ENV=development
 COPY apps/admin/package*.json ./
-RUN npm ci --ignore-scripts --no-audit --no-fund
+RUN npm ci --include=dev --ignore-scripts --no-audit --no-fund --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-timeout=300000 --maxsockets=3
 COPY apps/admin/ ./
 RUN npm run build
 
 FROM node:24-alpine AS portal-build
 WORKDIR /workspace/portal
+ENV NODE_ENV=development
 COPY apps/portal/package*.json ./
-RUN npm ci --ignore-scripts --no-audit --no-fund
+RUN npm ci --include=dev --ignore-scripts --no-audit --no-fund --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-timeout=300000 --maxsockets=3
 COPY apps/portal/ ./
 RUN npm run build
 
