@@ -100,9 +100,11 @@ body {
 .lab-header {
   height: 108px;
   padding: 16px 0;
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 20;
-  background: transparent;
+  background: linear-gradient(180deg, #171816f2 0%, #171816cc 72%, transparent 100%);
+  backdrop-filter: blur(12px);
 }
 .header-inner {
   height: 100%;
