@@ -1,5 +1,5 @@
-import { useLocation } from "@tanstack/react-router";
-import { useEffect, useState, type ReactNode } from "react";
+import { useLocation, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState, type MouseEvent, type ReactNode } from "react";
 import { ArrowUpRight, ArrowRight, Menu, X, Github, Linkedin } from "lucide-react";
 import { contentItems, useContent } from "./api";
 import { ChatWidget } from "../chat/ChatWidget";
@@ -37,6 +37,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
   const [menu, setMenu] = useState(false);
   const { data } = useContent();
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const items = contentItems(data);
   const page = items.find(
     (i) =>
@@ -45,6 +46,17 @@ export function SiteLayout({ children }: { children: ReactNode }) {
   );
   const sections = Array.isArray(page?.data["sections"]) ? page.data["sections"] : [];
   const settings = items.find((i) => i.kind === "settings")?.data;
+  const handleInternalNavigation = (event: MouseEvent<HTMLDivElement>) => {
+    const target = (event.target as HTMLElement).closest<HTMLAnchorElement>("a[href]");
+    if (!target || target.target === "_blank" || target.hasAttribute("download")) return;
+    const href = target.getAttribute("href");
+    if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
+    const url = new URL(href, window.location.origin);
+    if (url.origin !== window.location.origin) return;
+    event.preventDefault();
+    setMenu(false);
+    void navigate({ to: url.pathname + url.search + url.hash });
+  };
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") setMenu(false);
@@ -53,7 +65,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("keydown", handler);
   }, []);
   return (
-    <div className="lab-site">
+    <div className="lab-site" onClick={handleInternalNavigation}>
       <a href="#main" className="skip-link">
         Skip to content
       </a>
