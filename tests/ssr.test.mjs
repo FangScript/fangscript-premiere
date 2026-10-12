@@ -5,6 +5,11 @@ import { spawn } from "node:child_process";
 
 test("production server renders published CMS sections and SEO", async () => {
   const gateway = http.createServer((req, res) => {
+    if (req.url === "/api/v1/test-ping") {
+      res.setHeader("Content-Type", "application/json");
+      res.end(JSON.stringify({ ok: true, proxied: true }));
+      return;
+    }
     res.setHeader("Content-Type", "application/json");
     res.end(
       JSON.stringify({
@@ -64,8 +69,14 @@ test("production server renders published CMS sections and SEO", async () => {
     assert.ok(html.includes("A published description from the CMS."));
     assert.ok(html.includes("Our published principles"));
     assert.ok(html.includes("Useful work, thoughtfully delivered."));
+
+    const apiResponse = await fetch(`http://127.0.0.1:${websitePort}/api/v1/test-ping`);
+    assert.equal(apiResponse.status, 200);
+    const apiJson = await apiResponse.json();
+    assert.equal(apiJson.proxied, true);
   } finally {
     child.kill();
     await new Promise((r) => gateway.close(r));
   }
 });
+

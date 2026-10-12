@@ -106,9 +106,31 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
+async function proxyApiGateway(request: Request): Promise<Response | undefined> {
+  const url = new URL(request.url);
+  if (!url.pathname.startsWith("/api/v1")) return undefined;
+  const gatewayUrl = (process.env["API_GATEWAY_URL"] || "http://127.0.0.1:4100").replace(/\/$/, "");
+  const target = new URL(url.pathname + url.search, gatewayUrl);
+  const headers = new Headers(request.headers);
+  headers.delete("host");
+  const init: RequestInit = {
+    method: request.method,
+    headers,
+    redirect: "manual",
+  };
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    init.body = request.body;
+    // @ts-expect-error duplex required by node fetch when body is a ReadableStream
+    init.duplex = "half";
+  }
+  return fetch(target, init);
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const apiResponse = await proxyApiGateway(request);
+      if (apiResponse) return apiResponse;
       const workspaceResponse = await serveWorkspaceEntry(request);
       if (workspaceResponse) return workspaceResponse;
       const workspaceAssetResponse = await serveWorkspaceAsset(request);
@@ -125,3 +147,4 @@ export default {
     }
   },
 };
+
