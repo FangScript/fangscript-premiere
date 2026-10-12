@@ -20,7 +20,9 @@ const icons = [Code2, Bot, TrendingUp, PenTool, Database];
 function useCatalog() {
   const query = useContent();
   const records = contentItems(query.data).filter((i) => i.kind === "category");
-  return records
+  // Keep the public catalogue useful while the CMS has no published category rows.
+  // Once editors publish categories, those records take precedence.
+  return records.length
     ? (records.map((i) => ({ ...i.data, id: i.slug, title: i.title, slug: i.slug })) as Category[])
     : categories;
 }
