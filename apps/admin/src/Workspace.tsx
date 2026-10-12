@@ -171,12 +171,16 @@ export async function api(path: string, options: RequestInit = {}, retry = true)
     const refresh = await fetch("/api/v1/auth/refresh", { method: "POST", credentials: "include" });
     if (refresh.ok) return api(path, options, false);
   }
-  const data = await r
-    .json()
-    .catch(() => { throw new Error("The login service is unavailable. Please try again later."); });
+  let data: any;
+  try {
+    data = await r.json();
+  } catch {
+    throw new Error(`The API service returned HTTP ${r.status} (${r.statusText || "unreachable"}). Check that backend containers are running.`);
+  }
   if (!r.ok) throw new Error(data.error || data.detail || "Unable to complete this request");
   return data;
 }
+
 export const titleCase = (s: string) =>
   s.replaceAll("-", " ").replace(/\b\w/g, (c) => c.toUpperCase());
 export function Brand() {

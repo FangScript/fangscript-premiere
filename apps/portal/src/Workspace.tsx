@@ -173,10 +173,11 @@ export async function api(path: string, options: RequestInit = {}, retry = true)
   }
   const data = await r
     .json()
-    .catch(() => ({ error: "This module is unavailable. Check its connection and try again." }));
+    .catch(() => ({ error: `The API service returned HTTP ${r.status} (${r.statusText || "unreachable"}). Check that backend containers are running.` }));
   if (!r.ok) throw new Error(data.error || data.detail || "Unable to complete this request");
   return data;
 }
+
 export const titleCase = (s: string) =>
   s.replaceAll("-", " ").replace(/\b\w/g, (c) => c.toUpperCase());
 export function Brand() {
