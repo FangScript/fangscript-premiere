@@ -1,7 +1,7 @@
 import { useLocation } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { ArrowUpRight, ArrowRight, Menu, X, Github, Linkedin } from "lucide-react";
-import { useContent } from "./api";
+import { contentItems, useContent } from "./api";
 import { ChatWidget } from "../chat/ChatWidget";
 export function Brand() {
   return (
@@ -37,13 +37,14 @@ export function SiteLayout({ children }: { children: ReactNode }) {
   const [menu, setMenu] = useState(false);
   const { data } = useContent();
   const { pathname } = useLocation();
-  const page = data?.items.find(
+  const items = contentItems(data);
+  const page = items.find(
     (i) =>
       i.kind === "page" &&
       i.slug === (pathname === "/" ? "home" : pathname.split("/").filter(Boolean).at(-1)),
   );
   const sections = Array.isArray(page?.data["sections"]) ? page.data["sections"] : [];
-  const settings = data?.items.find((i) => i.kind === "settings")?.data;
+  const settings = items.find((i) => i.kind === "settings")?.data;
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") setMenu(false);

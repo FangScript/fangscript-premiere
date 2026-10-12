@@ -13,13 +13,13 @@ import {
   CalendarDays,
 } from "lucide-react";
 import { categories, demonstrations, faqs, type Category, type ContentRecord } from "./content";
-import { api, useContent } from "./api";
+import { api, contentItems, useContent } from "./api";
 import { SiteLayout, Button, CTA, PageHeading } from "./Chrome";
 const ClayScene = lazy(() => import("../scene/ClayScene"));
 const icons = [Code2, Bot, TrendingUp, PenTool, Database];
 function useCatalog() {
   const query = useContent();
-  const records = query.data?.items.filter((i) => i.kind === "category");
+  const records = contentItems(query.data).filter((i) => i.kind === "category");
   return records
     ? (records.map((i) => ({ ...i.data, id: i.slug, title: i.title, slug: i.slug })) as Category[])
     : categories;
@@ -55,7 +55,7 @@ export function ServiceCards() {
 }
 function useProjects() {
   const { data } = useContent();
-  const projects = data?.items.filter((i) => i.kind === "case-study");
+  const projects = contentItems(data).filter((i) => i.kind === "case-study");
   return projects
     ? projects.map((i) => ({
         id: i.slug,
@@ -411,7 +411,7 @@ export function WorkPage() {
 export function CaseStudyPage({ slug }: { slug: string }) {
   const p = useProjects().find((p) => p.id === slug);
   const { data } = useContent();
-  const record = data?.items.find((i) => i.slug === slug && i.kind === "case-study");
+  const record = contentItems(data).find((i) => i.slug === slug && i.kind === "case-study");
   if (!p) return <Missing />;
   return (
     <SiteLayout>
@@ -481,7 +481,7 @@ export function AboutPage() {
 }
 function FAQList({ limit }: { limit?: number }) {
   const { data } = useContent();
-  const records = data?.items.filter((i) => i.kind === "faq");
+  const records = contentItems(data).filter((i) => i.kind === "faq");
   const items = records ? records.map((i) => [i.title, String(i.data["answer"] || "")]) : faqs;
   return (
     <div className="faq-list">
@@ -510,7 +510,7 @@ export function FAQPage() {
 }
 export function InsightsPage({ slug }: { slug?: string }) {
   const { data } = useContent();
-  const posts = data?.items.filter((i) => i.kind === "post") || [];
+  const posts = contentItems(data).filter((i) => i.kind === "post");
   const post = posts.find((p) => p.slug === slug);
   if (slug && !post) return <Missing />;
   return (
@@ -744,7 +744,7 @@ export function BookingPage() {
 }
 export function LegalPage({ type }: { type: "privacy" | "terms" }) {
   const { data } = useContent();
-  const item = data?.items.find((i) => i.kind === "page" && i.slug === type);
+  const item = contentItems(data).find((i) => i.kind === "page" && i.slug === type);
   return (
     <SiteLayout>
       <PageHeading

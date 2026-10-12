@@ -1,5 +1,6 @@
 import { categories } from "../features/public/content";
 import { WelcomeIntro } from "../features/intro/WelcomeIntro";
+import { contentItems } from "../features/public/api";
 import { publishedContent } from "../features/public/content.server";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -95,7 +96,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: ({ loaderData, matches }) => {
     const path = matches.at(-1)?.pathname || "/";
     const slug = path === "/" ? "home" : path.split("/").filter(Boolean).at(-1);
-    const record = loaderData?.content?.items.find((i) => i.slug === slug);
+    const record = contentItems(loaderData?.content).find((i) => i.slug === slug);
     const fallback =
       categories.find((c) => c.slug === slug)?.title ||
       (
