@@ -16,7 +16,6 @@ playwright-report
 .venv
 **/__pycache__
 .codex
-apps
 services
 infra
 docs
