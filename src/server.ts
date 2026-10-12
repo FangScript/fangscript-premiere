@@ -1,6 +1,6 @@
 import "./lib/error-capture";
 import { readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { extname, join, normalize } from "node:path";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
@@ -24,6 +24,42 @@ async function serveWorkspaceEntry(request: Request): Promise<Response | undefin
     const body = await readFile(join(process.cwd(), ".output", "public", workspace, "index.html"));
     return new Response(request.method === "HEAD" ? null : body, {
       headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache" },
+    });
+  } catch {
+    return undefined;
+  }
+}
+
+async function serveWorkspaceAsset(request: Request): Promise<Response | undefined> {
+  const url = new URL(request.url);
+  if (request.method !== "GET" && request.method !== "HEAD") return undefined;
+  const match = url.pathname.match(/^\/(admin|portal)\/(.+)$/);
+  if (!match) return undefined;
+  const workspace = match[1]!;
+  const relative = match[2]!;
+  const root = join(process.cwd(), ".output", "public", workspace);
+  const file = normalize(join(root, relative));
+  if (file !== root && !file.startsWith(root + "/")) return undefined;
+  try {
+    const body = await readFile(file);
+    const contentTypes: Record<string, string> = {
+      ".css": "text/css; charset=utf-8",
+      ".html": "text/html; charset=utf-8",
+      ".js": "text/javascript; charset=utf-8",
+      ".json": "application/json; charset=utf-8",
+      ".svg": "image/svg+xml",
+      ".png": "image/png",
+      ".jpg": "image/jpeg",
+      ".jpeg": "image/jpeg",
+      ".webp": "image/webp",
+      ".woff": "font/woff",
+      ".woff2": "font/woff2",
+    };
+    return new Response(request.method === "HEAD" ? null : body, {
+      headers: {
+        "content-type": contentTypes[extname(file).toLowerCase()] ?? "application/octet-stream",
+        "cache-control": "public, max-age=31536000, immutable",
+      },
     });
   } catch {
     return undefined;
@@ -70,6 +106,8 @@ export default {
     try {
       const workspaceResponse = await serveWorkspaceEntry(request);
       if (workspaceResponse) return workspaceResponse;
+      const workspaceAssetResponse = await serveWorkspaceAsset(request);
+      if (workspaceAssetResponse) return workspaceAssetResponse;
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
