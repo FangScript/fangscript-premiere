@@ -1,3 +1,16 @@
+# FangScript Lab — Build. Automate. Grow.
+
+The cinematic public website, independent agency workspace, client portal, and service platform are implemented in this repository. Start with [implementation and deployment instructions](docs/IMPLEMENTATION.md).
+
+- Public preview: `pnpm dev`
+- Local platform: `node tooling/prepare-env.mjs`, then `docker compose up --build -d`
+- Verify: `pnpm typecheck`, `pnpm test:boundaries`, `pnpm test:domain`, `pnpm build:all`
+- Browser checks: `pnpm test:browser` with the three frontend servers running
+
+The public site remains compatible with its existing Lovable-connected branch. Never rewrite published Git history. Provider-dependent features remain visibly unconfigured until credentials are supplied.
+
+---
+
 # FangScript Premiere
 
 Build the FangScript agency HOME PAGE based on the provided visual references.

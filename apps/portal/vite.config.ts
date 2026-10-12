@@ -1,0 +1,1 @@
+import{defineConfig}from'vite';import react from'@vitejs/plugin-react';export default defineConfig({plugins:[react()],base:'/portal/',server:{port:4102,proxy:{'/api/v1':{target:'http://127.0.0.1:4100',changeOrigin:false}}},build:{target:'es2022'}});

@@ -1,0 +1,1 @@
+{"name":"@fangscript/gateway","private":true,"type":"module","engines":{"node":">=24"},"scripts":{"start":"node --env-file-if-exists=.env server.mjs","test":"node --test test/*.test.mjs"}}

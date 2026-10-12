@@ -1,0 +1,506 @@
+name: fangscript
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_AUTH_PASSWORD: ${DB_AUTH_PASSWORD}
+      DB_CMS_PASSWORD: ${DB_CMS_PASSWORD}
+      DB_LEAD_PASSWORD: ${DB_LEAD_PASSWORD}
+      DB_CRM_PASSWORD: ${DB_CRM_PASSWORD}
+      DB_PROJECT_PASSWORD: ${DB_PROJECT_PASSWORD}
+      DB_FILE_PASSWORD: ${DB_FILE_PASSWORD}
+      DB_PROPOSAL_PASSWORD: ${DB_PROPOSAL_PASSWORD}
+      DB_BILLING_PASSWORD: ${DB_BILLING_PASSWORD}
+      DB_NOTIFICATION_PASSWORD: ${DB_NOTIFICATION_PASSWORD}
+      DB_AUTOMATION_PASSWORD: ${DB_AUTOMATION_PASSWORD}
+      DB_MARKETING_PASSWORD: ${DB_MARKETING_PASSWORD}
+      DB_ANALYTICS_PASSWORD: ${DB_ANALYTICS_PASSWORD}
+      DB_AUDIT_PASSWORD: ${DB_AUDIT_PASSWORD}
+      DB_RAG_PASSWORD: ${DB_RAG_PASSWORD}
+      DB_CHATBOT_PASSWORD: ${DB_CHATBOT_PASSWORD}
+      DB_AGENT_PASSWORD: ${DB_AGENT_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./infra/postgres/init.sh:/docker-entrypoint-initdb.d/10-modules.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}"]
+    volumes: ["redis-data:/data"]
+  nats:
+    image: nats:2-alpine
+    restart: unless-stopped
+    command: ["-js", "-sd", "/data", "--auth", "${NATS_TOKEN}"]
+    volumes: ["nats-data:/data"]
+  auth:
+    build: ./services/auth
+    restart: unless-stopped
+    environment:
+      PORT: 4200
+      DATABASE_URL: postgresql://fs_auth:${DB_AUTH_PASSWORD}@postgres:5432/fs_auth
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      NATS_URL: nats://nats:4222
+      NODE_ENV: ${NODE_ENV:-}
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      JWT_SECRET: ${JWT_SECRET:-}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
+      NATS_TOKEN: ${NATS_TOKEN:-}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-}
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+      nats: { condition: service_started }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4200/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  cms:
+    build: ./services/cms
+    restart: unless-stopped
+    environment:
+      PORT: 4201
+      DATABASE_URL: postgresql://fs_cms:${DB_CMS_PASSWORD}@postgres:5432/fs_cms
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      NATS_URL: nats://nats:4222
+      NODE_ENV: ${NODE_ENV:-}
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      JWT_SECRET: ${JWT_SECRET:-}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
+      NATS_TOKEN: ${NATS_TOKEN:-}
+      SEED_CATALOG: ${SEED_CATALOG:-}
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+      nats: { condition: service_started }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4201/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  lead:
+    build: ./services/lead
+    restart: unless-stopped
+    environment:
+      PORT: 4202
+      DATABASE_URL: postgresql://fs_lead:${DB_LEAD_PASSWORD}@postgres:5432/fs_lead
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      NATS_URL: nats://nats:4222
+      NODE_ENV: ${NODE_ENV:-}
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      JWT_SECRET: ${JWT_SECRET:-}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
+      NATS_TOKEN: ${NATS_TOKEN:-}
+      CAL_BOOKING_URL: ${CAL_BOOKING_URL:-}
+      CAL_WEBHOOK_SECRET: ${CAL_WEBHOOK_SECRET:-}
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+      nats: { condition: service_started }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4202/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  crm:
+    build: ./services/crm
+    restart: unless-stopped
+    environment:
+      PORT: 4203
+      DATABASE_URL: postgresql://fs_crm:${DB_CRM_PASSWORD}@postgres:5432/fs_crm
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      NATS_URL: nats://nats:4222
+      NODE_ENV: ${NODE_ENV:-}
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      JWT_SECRET: ${JWT_SECRET:-}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
+      NATS_TOKEN: ${NATS_TOKEN:-}
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+      nats: { condition: service_started }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4203/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  project:
+    build: ./services/project
+    restart: unless-stopped
+    environment:
+      PORT: 4204
+      DATABASE_URL: postgresql://fs_project:${DB_PROJECT_PASSWORD}@postgres:5432/fs_project
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      NATS_URL: nats://nats:4222
+      NODE_ENV: ${NODE_ENV:-}
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      JWT_SECRET: ${JWT_SECRET:-}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
+      NATS_TOKEN: ${NATS_TOKEN:-}
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+      nats: { condition: service_started }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4204/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  file:
+    build: ./services/file
+    restart: unless-stopped
+    environment:
+      PORT: 4205
+      DATABASE_URL: postgresql://fs_file:${DB_FILE_PASSWORD}@postgres:5432/fs_file
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      NATS_URL: nats://nats:4222
+      NODE_ENV: ${NODE_ENV:-}
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      JWT_SECRET: ${JWT_SECRET:-}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
+      NATS_TOKEN: ${NATS_TOKEN:-}
+      R2_ENDPOINT: ${R2_ENDPOINT:-}
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
+      R2_BUCKET: ${R2_BUCKET:-}
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+      nats: { condition: service_started }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4205/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  proposal:
+    build: ./services/proposal
+    restart: unless-stopped
+    environment:
+      PORT: 4206
+      DATABASE_URL: postgresql://fs_proposal:${DB_PROPOSAL_PASSWORD}@postgres:5432/fs_proposal
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      NATS_URL: nats://nats:4222
+      NODE_ENV: ${NODE_ENV:-}
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      JWT_SECRET: ${JWT_SECRET:-}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
+      NATS_TOKEN: ${NATS_TOKEN:-}
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+      nats: { condition: service_started }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4206/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  billing:
+    build: ./services/billing
+    restart: unless-stopped
+    environment:
+      PORT: 4207
+      DATABASE_URL: postgresql://fs_billing:${DB_BILLING_PASSWORD}@postgres:5432/fs_billing
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      NATS_URL: nats://nats:4222
+      NODE_ENV: ${NODE_ENV:-}
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      JWT_SECRET: ${JWT_SECRET:-}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
+      NATS_TOKEN: ${NATS_TOKEN:-}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      STRIPE_LIVE_ENABLED: ${STRIPE_LIVE_ENABLED:-}
+      BANK_TRANSFER_INSTRUCTIONS: ${BANK_TRANSFER_INSTRUCTIONS:-}
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+      nats: { condition: service_started }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4207/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  notification:
+    build: ./services/notification
+    restart: unless-stopped
+    environment:
+      PORT: 4208
+      DATABASE_URL: postgresql://fs_notification:${DB_NOTIFICATION_PASSWORD}@postgres:5432/fs_notification
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      NATS_URL: nats://nats:4222
+      NODE_ENV: ${NODE_ENV:-}
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      JWT_SECRET: ${JWT_SECRET:-}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
+      NATS_TOKEN: ${NATS_TOKEN:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      EMAIL_FROM: ${EMAIL_FROM:-}
+      ENQUIRY_EMAIL: ${ENQUIRY_EMAIL:-}
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+      nats: { condition: service_started }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4208/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  automation:
+    build: ./services/automation
+    restart: unless-stopped
+    environment:
+      PORT: 4209
+      DATABASE_URL: postgresql://fs_automation:${DB_AUTOMATION_PASSWORD}@postgres:5432/fs_automation
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      NATS_URL: nats://nats:4222
+      NODE_ENV: ${NODE_ENV:-}
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      JWT_SECRET: ${JWT_SECRET:-}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
+      NATS_TOKEN: ${NATS_TOKEN:-}
+      N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL:-}
+      N8N_WEBHOOK_SECRET: ${N8N_WEBHOOK_SECRET:-}
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+      nats: { condition: service_started }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4209/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  marketing:
+    build: ./services/marketing
+    restart: unless-stopped
+    environment:
+      PORT: 4210
+      DATABASE_URL: postgresql://fs_marketing:${DB_MARKETING_PASSWORD}@postgres:5432/fs_marketing
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      NATS_URL: nats://nats:4222
+      NODE_ENV: ${NODE_ENV:-}
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      JWT_SECRET: ${JWT_SECRET:-}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
+      NATS_TOKEN: ${NATS_TOKEN:-}
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+      nats: { condition: service_started }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4210/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  analytics:
+    build: ./services/analytics
+    restart: unless-stopped
+    environment:
+      PORT: 4211
+      DATABASE_URL: postgresql://fs_analytics:${DB_ANALYTICS_PASSWORD}@postgres:5432/fs_analytics
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      NATS_URL: nats://nats:4222
+      NODE_ENV: ${NODE_ENV:-}
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      JWT_SECRET: ${JWT_SECRET:-}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
+      NATS_TOKEN: ${NATS_TOKEN:-}
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+      nats: { condition: service_started }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4211/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  audit:
+    build: ./services/audit
+    restart: unless-stopped
+    environment:
+      PORT: 4212
+      DATABASE_URL: postgresql://fs_audit:${DB_AUDIT_PASSWORD}@postgres:5432/fs_audit
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      NATS_URL: nats://nats:4222
+      NODE_ENV: ${NODE_ENV:-}
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      JWT_SECRET: ${JWT_SECRET:-}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
+      NATS_TOKEN: ${NATS_TOKEN:-}
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+      nats: { condition: service_started }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4212/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  rag:
+    build: ./services/rag
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://fs_rag:${DB_RAG_PASSWORD}@postgres:5432/fs_rag
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      NATS_URL: nats://nats:4222
+      CMS_URL: http://cms:4201
+      RAG_URL: http://rag:4300
+      NOTIFICATION_URL: http://notification:4208
+      NODE_ENV: ${NODE_ENV:-}
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      JWT_SECRET: ${JWT_SECRET:-}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
+      NATS_TOKEN: ${NATS_TOKEN:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_CHAT_MODEL: ${OPENAI_CHAT_MODEL:-}
+      OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-}
+      OPENAI_TRANSCRIBE_MODEL: ${OPENAI_TRANSCRIBE_MODEL:-}
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:4300/health/ready')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  chatbot:
+    build: ./services/chatbot
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://fs_chatbot:${DB_CHATBOT_PASSWORD}@postgres:5432/fs_chatbot
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      NATS_URL: nats://nats:4222
+      CMS_URL: http://cms:4201
+      RAG_URL: http://rag:4300
+      NOTIFICATION_URL: http://notification:4208
+      NODE_ENV: ${NODE_ENV:-}
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      JWT_SECRET: ${JWT_SECRET:-}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
+      NATS_TOKEN: ${NATS_TOKEN:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_CHAT_MODEL: ${OPENAI_CHAT_MODEL:-}
+      OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-}
+      OPENAI_TRANSCRIBE_MODEL: ${OPENAI_TRANSCRIBE_MODEL:-}
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:4300/health/ready')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  agent:
+    build: ./services/agent
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://fs_agent:${DB_AGENT_PASSWORD}@postgres:5432/fs_agent
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      NATS_URL: nats://nats:4222
+      CMS_URL: http://cms:4201
+      RAG_URL: http://rag:4300
+      NOTIFICATION_URL: http://notification:4208
+      NODE_ENV: ${NODE_ENV:-}
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      JWT_SECRET: ${JWT_SECRET:-}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
+      NATS_TOKEN: ${NATS_TOKEN:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_CHAT_MODEL: ${OPENAI_CHAT_MODEL:-}
+      OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-}
+      OPENAI_TRANSCRIBE_MODEL: ${OPENAI_TRANSCRIBE_MODEL:-}
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:4300/health/ready')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  gateway:
+    build: ./services/gateway
+    restart: unless-stopped
+    ports: ["127.0.0.1:4100:4100"]
+    environment:
+      PORT: 4100
+      AUTH_URL: http://auth:4200
+      CMS_URL: http://cms:4201
+      LEAD_URL: http://lead:4202
+      CRM_URL: http://crm:4203
+      PROJECT_URL: http://project:4204
+      FILE_URL: http://file:4205
+      PROPOSAL_URL: http://proposal:4206
+      BILLING_URL: http://billing:4207
+      NOTIFICATION_URL: http://notification:4208
+      AUTOMATION_URL: http://automation:4209
+      MARKETING_URL: http://marketing:4210
+      ANALYTICS_URL: http://analytics:4211
+      AUDIT_URL: http://audit:4212
+      RAG_URL: http://rag:4300
+      CHATBOT_URL: http://chatbot:4300
+      AGENT_URL: http://agent:4300
+  web:
+    build: .
+    restart: unless-stopped
+    profiles: ["production"]
+    environment:
+      API_GATEWAY_URL: http://gateway:4100
+  admin:
+    build: ./apps/admin
+    restart: unless-stopped
+    ports: ["127.0.0.1:4101:80"]
+  portal:
+    build: ./apps/portal
+    restart: unless-stopped
+    ports: ["127.0.0.1:4102:80"]
+  traefik:
+    image: traefik:v3.6
+    restart: unless-stopped
+    profiles: ["production"]
+    ports: ["80:80", "443:443"]
+    command:
+      - --providers.file.filename=/etc/traefik/routes.yml
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.storage=/certificates/acme.json
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+    volumes:
+      - ./infra/traefik/routes.yml:/etc/traefik/routes.yml:ro
+      - certificates:/certificates
+  n8n:
+    image: n8nio/n8n:latest
+    restart: unless-stopped
+    profiles: ["automation"]
+    ports: ["127.0.0.1:5678:5678"]
+    environment:
+      N8N_ENCRYPTION_KEY: ${N8N_WEBHOOK_SECRET}
+      N8N_DIAGNOSTICS_ENABLED: "false"
+    volumes: ["n8n-data:/home/node/.n8n"]
+  backup:
+    build: ./infra/backup
+    profiles: ["backup"]
+    restart: on-failure
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      BACKUP_BUCKET: ${BACKUP_BUCKET:-}
+      BACKUP_ENDPOINT: ${BACKUP_ENDPOINT:-}
+      AWS_ACCESS_KEY_ID: ${BACKUP_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${BACKUP_SECRET_ACCESS_KEY:-}
+    depends_on:
+      postgres: { condition: service_healthy }
+volumes:
+  postgres-data:
+  redis-data:
+  nats-data:
+  certificates:
+  n8n-data:

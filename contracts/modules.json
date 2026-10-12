@@ -1,0 +1,127 @@
+[
+  {
+    "kinds": [
+      "users",
+      "invitations"
+    ],
+    "label": "Identity",
+    "id": "auth",
+    "port": 4200
+  },
+  {
+    "kinds": [
+      "category",
+      "page",
+      "case-study",
+      "post",
+      "faq",
+      "testimonial",
+      "settings",
+      "media"
+    ],
+    "label": "Content",
+    "id": "cms",
+    "port": 4201
+  },
+  {
+    "kinds": [
+      "leads",
+      "bookings",
+      "touchpoints"
+    ],
+    "label": "Enquiries",
+    "id": "lead",
+    "port": 4202
+  },
+  {
+    "kinds": [
+      "contacts",
+      "companies",
+      "deals",
+      "activities"
+    ],
+    "label": "CRM",
+    "id": "crm",
+    "port": 4203
+  },
+  {
+    "kinds": [
+      "projects",
+      "milestones",
+      "tasks",
+      "updates"
+    ],
+    "label": "Projects",
+    "id": "project",
+    "port": 4204
+  },
+  {
+    "kinds": [
+      "files"
+    ],
+    "label": "Files",
+    "id": "file",
+    "port": 4205
+  },
+  {
+    "kinds": [
+      "proposals",
+      "templates"
+    ],
+    "label": "Proposals",
+    "id": "proposal",
+    "port": 4206
+  },
+  {
+    "kinds": [
+      "invoices",
+      "receipts"
+    ],
+    "label": "Billing",
+    "id": "billing",
+    "port": 4207
+  },
+  {
+    "kinds": [
+      "notifications",
+      "deliveries"
+    ],
+    "label": "Notifications",
+    "id": "notification",
+    "port": 4208
+  },
+  {
+    "kinds": [
+      "workflows",
+      "runs"
+    ],
+    "label": "Automation",
+    "id": "automation",
+    "port": 4209
+  },
+  {
+    "kinds": [
+      "drafts",
+      "campaigns"
+    ],
+    "label": "Marketing",
+    "id": "marketing",
+    "port": 4210
+  },
+  {
+    "kinds": [
+      "metrics"
+    ],
+    "label": "Analytics",
+    "id": "analytics",
+    "port": 4211
+  },
+  {
+    "kinds": [
+      "events"
+    ],
+    "label": "Audit",
+    "id": "audit",
+    "port": 4212
+  }
+]

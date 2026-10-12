@@ -1,0 +1,58 @@
+name: Independent platform checks
+on:
+  push:
+  pull_request:
+jobs:
+  public:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24 }
+      - uses: pnpm/action-setup@v4
+        with: { version: 10.32.1 }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck && pnpm test:boundaries && pnpm test:domain
+      - run: pnpm build:all
+      - run: pnpm test:ssr
+      - run: sh tests/backup.sh
+  ai:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: { module: [rag, chatbot, agent] }
+    defaults:
+      run:
+        working-directory: services/${{ matrix.module }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install -r requirements.txt
+      - run: python -m unittest discover -s tests -v
+  backend:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: { module: [auth, cms, lead, crm, project, file, proposal, billing, notification, automation, marketing, analytics, audit] }
+    defaults:
+      run:
+        working-directory: services/${{ matrix.module }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24 }
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - run: docker build -t fangscript-${{ matrix.module }}:test .
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24 }
+      - run: node tooling/prepare-env.mjs
+      - run: docker compose up --build --wait --wait-timeout 300 postgres redis nats auth cms lead crm project proposal billing notification gateway
+      - run: node --test tests/platform.integration.mjs
+      - if: always()
+        run: docker compose logs --tail 100
+      - if: always()
+        run: docker compose down
