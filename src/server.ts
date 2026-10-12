@@ -1,4 +1,6 @@
 import "./lib/error-capture";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
@@ -8,6 +10,25 @@ type ServerEntry = {
 };
 
 let serverEntryPromise: Promise<ServerEntry> | undefined;
+
+async function serveWorkspaceEntry(request: Request): Promise<Response | undefined> {
+  const url = new URL(request.url);
+  if (request.method !== "GET" && request.method !== "HEAD") return undefined;
+  const workspace = url.pathname === "/admin" || url.pathname === "/admin/"
+    ? "admin"
+    : url.pathname === "/portal" || url.pathname === "/portal/"
+      ? "portal"
+      : undefined;
+  if (!workspace) return undefined;
+  try {
+    const body = await readFile(join(process.cwd(), ".output", "public", workspace, "index.html"));
+    return new Response(request.method === "HEAD" ? null : body, {
+      headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache" },
+    });
+  } catch {
+    return undefined;
+  }
+}
 
 async function getServerEntry(): Promise<ServerEntry> {
   if (!serverEntryPromise) {
@@ -47,6 +68,8 @@ function isH3SwallowedErrorBody(body: string): boolean {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const workspaceResponse = await serveWorkspaceEntry(request);
+      if (workspaceResponse) return workspaceResponse;
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
