@@ -22,7 +22,8 @@
     "test:ssr": "node --test tests/ssr.test.mjs"
   },
   "overrides": {
-    "rolldown": "1.2.1"
+    "rolldown": "1.2.13",
+    "vite>rolldown": "1.2.13"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -86,6 +87,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@rolldown/binding-linux-x64-gnu": "1.1.5",
     "@eslint/js": "^9.32.0",
     "@lovable.dev/vite-tanstack-config": "^2.23.1",
     "@types/node": "^22.16.5",
