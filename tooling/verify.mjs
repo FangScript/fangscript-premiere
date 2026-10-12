@@ -7,7 +7,7 @@ const run = (args, options = {}) => {
 };
 if (mode === "public") {
   run(["node_modules/vite/bin/vite.js", "build"], {
-    env: { ...process.env, NODE_ENV: "production" },
+    env: { ...process.env, NITRO_PRESET: "node-server", NODE_ENV: "production" },
   });
 } else if (mode === "domain") {
   for (const name of readdirSync("services"))
