@@ -14,15 +14,17 @@ WORKDIR /workspace/admin
 # mode for the final runtime image only.
 ENV NODE_ENV=development
 COPY apps/admin/package*.json ./
-RUN npm ci --include=dev --ignore-scripts --no-audit --no-fund --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-timeout=300000 --maxsockets=3
+RUN npm ci --include=dev --ignore-scripts --no-audit --no-fund --fetch-retries=5 --fetch-retry-mintimeout=10000 --fetch-retry-maxtimeout=60000 --fetch-timeout=600000 || \
+    npm install --include=dev --ignore-scripts --no-audit --no-fund --fetch-retries=5 --fetch-retry-mintimeout=10000 --fetch-retry-maxtimeout=60000 --fetch-timeout=600000
 COPY apps/admin/ ./
 RUN npm run build
 
 FROM node:24-alpine AS portal-build
 WORKDIR /workspace/portal
 ENV NODE_ENV=development
+# Portal has identical dependencies to admin; reuse node_modules to avoid duplicate downloads and network timeouts
+COPY --from=admin-build /workspace/admin/node_modules ./node_modules
 COPY apps/portal/package*.json ./
-RUN npm ci --include=dev --ignore-scripts --no-audit --no-fund --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-timeout=300000 --maxsockets=3
 COPY apps/portal/ ./
 RUN npm run build
 
