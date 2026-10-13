@@ -1,7 +1,7 @@
 FROM python:3.12-slim
 WORKDIR /app
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt && useradd --create-home app
+RUN pip install --no-cache-dir --retries 10 --timeout 60 -r requirements.txt && useradd --create-home app
 COPY app.py .
 USER app
 EXPOSE 4300
