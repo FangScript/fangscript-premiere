@@ -5,23 +5,23 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      DB_AUTH_PASSWORD: ${DB_AUTH_PASSWORD}
-      DB_CMS_PASSWORD: ${DB_CMS_PASSWORD}
-      DB_LEAD_PASSWORD: ${DB_LEAD_PASSWORD}
-      DB_CRM_PASSWORD: ${DB_CRM_PASSWORD}
-      DB_PROJECT_PASSWORD: ${DB_PROJECT_PASSWORD}
-      DB_FILE_PASSWORD: ${DB_FILE_PASSWORD}
-      DB_PROPOSAL_PASSWORD: ${DB_PROPOSAL_PASSWORD}
-      DB_BILLING_PASSWORD: ${DB_BILLING_PASSWORD}
-      DB_NOTIFICATION_PASSWORD: ${DB_NOTIFICATION_PASSWORD}
-      DB_AUTOMATION_PASSWORD: ${DB_AUTOMATION_PASSWORD}
-      DB_MARKETING_PASSWORD: ${DB_MARKETING_PASSWORD}
-      DB_ANALYTICS_PASSWORD: ${DB_ANALYTICS_PASSWORD}
-      DB_AUDIT_PASSWORD: ${DB_AUDIT_PASSWORD}
-      DB_RAG_PASSWORD: ${DB_RAG_PASSWORD}
-      DB_CHATBOT_PASSWORD: ${DB_CHATBOT_PASSWORD}
-      DB_AGENT_PASSWORD: ${DB_AGENT_PASSWORD}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-fs_postgres_pass_2026_secure}
+      DB_AUTH_PASSWORD: ${DB_AUTH_PASSWORD:-fs_auth_db_pass_2026}
+      DB_CMS_PASSWORD: ${DB_CMS_PASSWORD:-fs_cms_db_pass_2026}
+      DB_LEAD_PASSWORD: ${DB_LEAD_PASSWORD:-fs_lead_db_pass_2026}
+      DB_CRM_PASSWORD: ${DB_CRM_PASSWORD:-fs_crm_db_pass_2026}
+      DB_PROJECT_PASSWORD: ${DB_PROJECT_PASSWORD:-fs_project_db_pass_2026}
+      DB_FILE_PASSWORD: ${DB_FILE_PASSWORD:-fs_file_db_pass_2026}
+      DB_PROPOSAL_PASSWORD: ${DB_PROPOSAL_PASSWORD:-fs_proposal_db_pass_2026}
+      DB_BILLING_PASSWORD: ${DB_BILLING_PASSWORD:-fs_billing_db_pass_2026}
+      DB_NOTIFICATION_PASSWORD: ${DB_NOTIFICATION_PASSWORD:-fs_notification_db_pass_2026}
+      DB_AUTOMATION_PASSWORD: ${DB_AUTOMATION_PASSWORD:-fs_automation_db_pass_2026}
+      DB_MARKETING_PASSWORD: ${DB_MARKETING_PASSWORD:-fs_marketing_db_pass_2026}
+      DB_ANALYTICS_PASSWORD: ${DB_ANALYTICS_PASSWORD:-fs_analytics_db_pass_2026}
+      DB_AUDIT_PASSWORD: ${DB_AUDIT_PASSWORD:-fs_audit_db_pass_2026}
+      DB_RAG_PASSWORD: ${DB_RAG_PASSWORD:-fs_rag_db_pass_2026}
+      DB_CHATBOT_PASSWORD: ${DB_CHATBOT_PASSWORD:-fs_chatbot_db_pass_2026}
+      DB_AGENT_PASSWORD: ${DB_AGENT_PASSWORD:-fs_agent_db_pass_2026}
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./infra/postgres/init.sh:/docker-entrypoint-initdb.d/10-modules.sh:ro
@@ -33,28 +33,28 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
-    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}"]
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD:-fs_redis_pass_2026}"]
     volumes: ["redis-data:/data"]
   nats:
     image: nats:2-alpine
     restart: unless-stopped
-    command: ["-js", "-sd", "/data", "--auth", "${NATS_TOKEN}"]
+    command: ["-js", "-sd", "/data", "--auth", "${NATS_TOKEN:-fs_nats_token_2026}"]
     volumes: ["nats-data:/data"]
   auth:
     build: ./services/auth
     restart: unless-stopped
     environment:
       PORT: 4200
-      DATABASE_URL: postgresql://fs_auth:${DB_AUTH_PASSWORD}@postgres:5432/fs_auth
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      DATABASE_URL: postgresql://fs_auth:${DB_AUTH_PASSWORD:-fs_auth_db_pass_2026}@postgres:5432/fs_auth
+      REDIS_URL: redis://:${REDIS_PASSWORD:-fs_redis_pass_2026}@redis:6379
       NATS_URL: nats://nats:4222
       NODE_ENV: ${NODE_ENV:-}
       PUBLIC_URL: ${PUBLIC_URL:-}
-      JWT_SECRET: ${JWT_SECRET:-}
-      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
-      NATS_TOKEN: ${NATS_TOKEN:-}
-      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-}
-      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-}
+      JWT_SECRET: ${JWT_SECRET:-fangscript_super_secret_jwt_key_32chars_long}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-fangscript_internal_service_token_32chars}
+      NATS_TOKEN: ${NATS_TOKEN:-fs_nats_token_2026}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-admin@fangscript.com}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-Admin123456!Secure}
       ALLOW_ALL_ORIGINS: ${ALLOW_ALL_ORIGINS:-true}
       COOKIE_SECURE: ${COOKIE_SECURE:-}
     depends_on:
@@ -71,14 +71,14 @@ services:
     restart: unless-stopped
     environment:
       PORT: 4201
-      DATABASE_URL: postgresql://fs_cms:${DB_CMS_PASSWORD}@postgres:5432/fs_cms
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      DATABASE_URL: postgresql://fs_cms:${DB_CMS_PASSWORD:-fs_cms_db_pass_2026}@postgres:5432/fs_cms
+      REDIS_URL: redis://:${REDIS_PASSWORD:-fs_redis_pass_2026}@redis:6379
       NATS_URL: nats://nats:4222
       NODE_ENV: ${NODE_ENV:-}
       PUBLIC_URL: ${PUBLIC_URL:-}
-      JWT_SECRET: ${JWT_SECRET:-}
-      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
-      NATS_TOKEN: ${NATS_TOKEN:-}
+      JWT_SECRET: ${JWT_SECRET:-fangscript_super_secret_jwt_key_32chars_long}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-fangscript_internal_service_token_32chars}
+      NATS_TOKEN: ${NATS_TOKEN:-fs_nats_token_2026}
       SEED_CATALOG: ${SEED_CATALOG:-}
     depends_on:
       postgres: { condition: service_healthy }
@@ -94,14 +94,14 @@ services:
     restart: unless-stopped
     environment:
       PORT: 4202
-      DATABASE_URL: postgresql://fs_lead:${DB_LEAD_PASSWORD}@postgres:5432/fs_lead
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      DATABASE_URL: postgresql://fs_lead:${DB_LEAD_PASSWORD:-fs_lead_db_pass_2026}@postgres:5432/fs_lead
+      REDIS_URL: redis://:${REDIS_PASSWORD:-fs_redis_pass_2026}@redis:6379
       NATS_URL: nats://nats:4222
       NODE_ENV: ${NODE_ENV:-}
       PUBLIC_URL: ${PUBLIC_URL:-}
-      JWT_SECRET: ${JWT_SECRET:-}
-      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
-      NATS_TOKEN: ${NATS_TOKEN:-}
+      JWT_SECRET: ${JWT_SECRET:-fangscript_super_secret_jwt_key_32chars_long}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-fangscript_internal_service_token_32chars}
+      NATS_TOKEN: ${NATS_TOKEN:-fs_nats_token_2026}
       CAL_BOOKING_URL: ${CAL_BOOKING_URL:-}
       CAL_WEBHOOK_SECRET: ${CAL_WEBHOOK_SECRET:-}
     depends_on:
@@ -118,14 +118,14 @@ services:
     restart: unless-stopped
     environment:
       PORT: 4203
-      DATABASE_URL: postgresql://fs_crm:${DB_CRM_PASSWORD}@postgres:5432/fs_crm
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      DATABASE_URL: postgresql://fs_crm:${DB_CRM_PASSWORD:-fs_crm_db_pass_2026}@postgres:5432/fs_crm
+      REDIS_URL: redis://:${REDIS_PASSWORD:-fs_redis_pass_2026}@redis:6379
       NATS_URL: nats://nats:4222
       NODE_ENV: ${NODE_ENV:-}
       PUBLIC_URL: ${PUBLIC_URL:-}
-      JWT_SECRET: ${JWT_SECRET:-}
-      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
-      NATS_TOKEN: ${NATS_TOKEN:-}
+      JWT_SECRET: ${JWT_SECRET:-fangscript_super_secret_jwt_key_32chars_long}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-fangscript_internal_service_token_32chars}
+      NATS_TOKEN: ${NATS_TOKEN:-fs_nats_token_2026}
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_started }
@@ -140,14 +140,14 @@ services:
     restart: unless-stopped
     environment:
       PORT: 4204
-      DATABASE_URL: postgresql://fs_project:${DB_PROJECT_PASSWORD}@postgres:5432/fs_project
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      DATABASE_URL: postgresql://fs_project:${DB_PROJECT_PASSWORD:-fs_project_db_pass_2026}@postgres:5432/fs_project
+      REDIS_URL: redis://:${REDIS_PASSWORD:-fs_redis_pass_2026}@redis:6379
       NATS_URL: nats://nats:4222
       NODE_ENV: ${NODE_ENV:-}
       PUBLIC_URL: ${PUBLIC_URL:-}
-      JWT_SECRET: ${JWT_SECRET:-}
-      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
-      NATS_TOKEN: ${NATS_TOKEN:-}
+      JWT_SECRET: ${JWT_SECRET:-fangscript_super_secret_jwt_key_32chars_long}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-fangscript_internal_service_token_32chars}
+      NATS_TOKEN: ${NATS_TOKEN:-fs_nats_token_2026}
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_started }
@@ -162,14 +162,14 @@ services:
     restart: unless-stopped
     environment:
       PORT: 4205
-      DATABASE_URL: postgresql://fs_file:${DB_FILE_PASSWORD}@postgres:5432/fs_file
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      DATABASE_URL: postgresql://fs_file:${DB_FILE_PASSWORD:-fs_file_db_pass_2026}@postgres:5432/fs_file
+      REDIS_URL: redis://:${REDIS_PASSWORD:-fs_redis_pass_2026}@redis:6379
       NATS_URL: nats://nats:4222
       NODE_ENV: ${NODE_ENV:-}
       PUBLIC_URL: ${PUBLIC_URL:-}
-      JWT_SECRET: ${JWT_SECRET:-}
-      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
-      NATS_TOKEN: ${NATS_TOKEN:-}
+      JWT_SECRET: ${JWT_SECRET:-fangscript_super_secret_jwt_key_32chars_long}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-fangscript_internal_service_token_32chars}
+      NATS_TOKEN: ${NATS_TOKEN:-fs_nats_token_2026}
       R2_ENDPOINT: ${R2_ENDPOINT:-}
       R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-}
       R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
@@ -188,14 +188,14 @@ services:
     restart: unless-stopped
     environment:
       PORT: 4206
-      DATABASE_URL: postgresql://fs_proposal:${DB_PROPOSAL_PASSWORD}@postgres:5432/fs_proposal
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      DATABASE_URL: postgresql://fs_proposal:${DB_PROPOSAL_PASSWORD:-fs_proposal_db_pass_2026}@postgres:5432/fs_proposal
+      REDIS_URL: redis://:${REDIS_PASSWORD:-fs_redis_pass_2026}@redis:6379
       NATS_URL: nats://nats:4222
       NODE_ENV: ${NODE_ENV:-}
       PUBLIC_URL: ${PUBLIC_URL:-}
-      JWT_SECRET: ${JWT_SECRET:-}
-      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
-      NATS_TOKEN: ${NATS_TOKEN:-}
+      JWT_SECRET: ${JWT_SECRET:-fangscript_super_secret_jwt_key_32chars_long}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-fangscript_internal_service_token_32chars}
+      NATS_TOKEN: ${NATS_TOKEN:-fs_nats_token_2026}
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_started }
@@ -210,14 +210,14 @@ services:
     restart: unless-stopped
     environment:
       PORT: 4207
-      DATABASE_URL: postgresql://fs_billing:${DB_BILLING_PASSWORD}@postgres:5432/fs_billing
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      DATABASE_URL: postgresql://fs_billing:${DB_BILLING_PASSWORD:-fs_billing_db_pass_2026}@postgres:5432/fs_billing
+      REDIS_URL: redis://:${REDIS_PASSWORD:-fs_redis_pass_2026}@redis:6379
       NATS_URL: nats://nats:4222
       NODE_ENV: ${NODE_ENV:-}
       PUBLIC_URL: ${PUBLIC_URL:-}
-      JWT_SECRET: ${JWT_SECRET:-}
-      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
-      NATS_TOKEN: ${NATS_TOKEN:-}
+      JWT_SECRET: ${JWT_SECRET:-fangscript_super_secret_jwt_key_32chars_long}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-fangscript_internal_service_token_32chars}
+      NATS_TOKEN: ${NATS_TOKEN:-fs_nats_token_2026}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
       STRIPE_LIVE_ENABLED: ${STRIPE_LIVE_ENABLED:-}
@@ -236,14 +236,14 @@ services:
     restart: unless-stopped
     environment:
       PORT: 4208
-      DATABASE_URL: postgresql://fs_notification:${DB_NOTIFICATION_PASSWORD}@postgres:5432/fs_notification
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      DATABASE_URL: postgresql://fs_notification:${DB_NOTIFICATION_PASSWORD:-fs_notification_db_pass_2026}@postgres:5432/fs_notification
+      REDIS_URL: redis://:${REDIS_PASSWORD:-fs_redis_pass_2026}@redis:6379
       NATS_URL: nats://nats:4222
       NODE_ENV: ${NODE_ENV:-}
       PUBLIC_URL: ${PUBLIC_URL:-}
-      JWT_SECRET: ${JWT_SECRET:-}
-      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
-      NATS_TOKEN: ${NATS_TOKEN:-}
+      JWT_SECRET: ${JWT_SECRET:-fangscript_super_secret_jwt_key_32chars_long}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-fangscript_internal_service_token_32chars}
+      NATS_TOKEN: ${NATS_TOKEN:-fs_nats_token_2026}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       EMAIL_FROM: ${EMAIL_FROM:-}
       ENQUIRY_EMAIL: ${ENQUIRY_EMAIL:-}
@@ -261,14 +261,14 @@ services:
     restart: unless-stopped
     environment:
       PORT: 4209
-      DATABASE_URL: postgresql://fs_automation:${DB_AUTOMATION_PASSWORD}@postgres:5432/fs_automation
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      DATABASE_URL: postgresql://fs_automation:${DB_AUTOMATION_PASSWORD:-fs_automation_db_pass_2026}@postgres:5432/fs_automation
+      REDIS_URL: redis://:${REDIS_PASSWORD:-fs_redis_pass_2026}@redis:6379
       NATS_URL: nats://nats:4222
       NODE_ENV: ${NODE_ENV:-}
       PUBLIC_URL: ${PUBLIC_URL:-}
-      JWT_SECRET: ${JWT_SECRET:-}
-      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
-      NATS_TOKEN: ${NATS_TOKEN:-}
+      JWT_SECRET: ${JWT_SECRET:-fangscript_super_secret_jwt_key_32chars_long}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-fangscript_internal_service_token_32chars}
+      NATS_TOKEN: ${NATS_TOKEN:-fs_nats_token_2026}
       N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL:-}
       N8N_WEBHOOK_SECRET: ${N8N_WEBHOOK_SECRET:-}
     depends_on:
@@ -285,14 +285,14 @@ services:
     restart: unless-stopped
     environment:
       PORT: 4210
-      DATABASE_URL: postgresql://fs_marketing:${DB_MARKETING_PASSWORD}@postgres:5432/fs_marketing
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      DATABASE_URL: postgresql://fs_marketing:${DB_MARKETING_PASSWORD:-fs_marketing_db_pass_2026}@postgres:5432/fs_marketing
+      REDIS_URL: redis://:${REDIS_PASSWORD:-fs_redis_pass_2026}@redis:6379
       NATS_URL: nats://nats:4222
       NODE_ENV: ${NODE_ENV:-}
       PUBLIC_URL: ${PUBLIC_URL:-}
-      JWT_SECRET: ${JWT_SECRET:-}
-      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
-      NATS_TOKEN: ${NATS_TOKEN:-}
+      JWT_SECRET: ${JWT_SECRET:-fangscript_super_secret_jwt_key_32chars_long}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-fangscript_internal_service_token_32chars}
+      NATS_TOKEN: ${NATS_TOKEN:-fs_nats_token_2026}
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_started }
@@ -307,14 +307,14 @@ services:
     restart: unless-stopped
     environment:
       PORT: 4211
-      DATABASE_URL: postgresql://fs_analytics:${DB_ANALYTICS_PASSWORD}@postgres:5432/fs_analytics
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      DATABASE_URL: postgresql://fs_analytics:${DB_ANALYTICS_PASSWORD:-fs_analytics_db_pass_2026}@postgres:5432/fs_analytics
+      REDIS_URL: redis://:${REDIS_PASSWORD:-fs_redis_pass_2026}@redis:6379
       NATS_URL: nats://nats:4222
       NODE_ENV: ${NODE_ENV:-}
       PUBLIC_URL: ${PUBLIC_URL:-}
-      JWT_SECRET: ${JWT_SECRET:-}
-      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
-      NATS_TOKEN: ${NATS_TOKEN:-}
+      JWT_SECRET: ${JWT_SECRET:-fangscript_super_secret_jwt_key_32chars_long}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-fangscript_internal_service_token_32chars}
+      NATS_TOKEN: ${NATS_TOKEN:-fs_nats_token_2026}
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_started }
@@ -329,14 +329,14 @@ services:
     restart: unless-stopped
     environment:
       PORT: 4212
-      DATABASE_URL: postgresql://fs_audit:${DB_AUDIT_PASSWORD}@postgres:5432/fs_audit
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      DATABASE_URL: postgresql://fs_audit:${DB_AUDIT_PASSWORD:-fs_audit_db_pass_2026}@postgres:5432/fs_audit
+      REDIS_URL: redis://:${REDIS_PASSWORD:-fs_redis_pass_2026}@redis:6379
       NATS_URL: nats://nats:4222
       NODE_ENV: ${NODE_ENV:-}
       PUBLIC_URL: ${PUBLIC_URL:-}
-      JWT_SECRET: ${JWT_SECRET:-}
-      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
-      NATS_TOKEN: ${NATS_TOKEN:-}
+      JWT_SECRET: ${JWT_SECRET:-fangscript_super_secret_jwt_key_32chars_long}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-fangscript_internal_service_token_32chars}
+      NATS_TOKEN: ${NATS_TOKEN:-fs_nats_token_2026}
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_started }
@@ -350,17 +350,17 @@ services:
     build: ./services/rag
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://fs_rag:${DB_RAG_PASSWORD}@postgres:5432/fs_rag
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      DATABASE_URL: postgresql://fs_rag:${DB_RAG_PASSWORD:-fs_rag_db_pass_2026}@postgres:5432/fs_rag
+      REDIS_URL: redis://:${REDIS_PASSWORD:-fs_redis_pass_2026}@redis:6379
       NATS_URL: nats://nats:4222
       CMS_URL: http://cms:4201
       RAG_URL: http://rag:4300
       NOTIFICATION_URL: http://notification:4208
       NODE_ENV: ${NODE_ENV:-}
       PUBLIC_URL: ${PUBLIC_URL:-}
-      JWT_SECRET: ${JWT_SECRET:-}
-      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
-      NATS_TOKEN: ${NATS_TOKEN:-}
+      JWT_SECRET: ${JWT_SECRET:-fangscript_super_secret_jwt_key_32chars_long}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-fangscript_internal_service_token_32chars}
+      NATS_TOKEN: ${NATS_TOKEN:-fs_nats_token_2026}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_CHAT_MODEL: ${OPENAI_CHAT_MODEL:-}
       OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-}
@@ -377,17 +377,17 @@ services:
     build: ./services/chatbot
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://fs_chatbot:${DB_CHATBOT_PASSWORD}@postgres:5432/fs_chatbot
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      DATABASE_URL: postgresql://fs_chatbot:${DB_CHATBOT_PASSWORD:-fs_chatbot_db_pass_2026}@postgres:5432/fs_chatbot
+      REDIS_URL: redis://:${REDIS_PASSWORD:-fs_redis_pass_2026}@redis:6379
       NATS_URL: nats://nats:4222
       CMS_URL: http://cms:4201
       RAG_URL: http://rag:4300
       NOTIFICATION_URL: http://notification:4208
       NODE_ENV: ${NODE_ENV:-}
       PUBLIC_URL: ${PUBLIC_URL:-}
-      JWT_SECRET: ${JWT_SECRET:-}
-      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
-      NATS_TOKEN: ${NATS_TOKEN:-}
+      JWT_SECRET: ${JWT_SECRET:-fangscript_super_secret_jwt_key_32chars_long}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-fangscript_internal_service_token_32chars}
+      NATS_TOKEN: ${NATS_TOKEN:-fs_nats_token_2026}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_CHAT_MODEL: ${OPENAI_CHAT_MODEL:-}
       OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-}
@@ -404,17 +404,17 @@ services:
     build: ./services/agent
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://fs_agent:${DB_AGENT_PASSWORD}@postgres:5432/fs_agent
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      DATABASE_URL: postgresql://fs_agent:${DB_AGENT_PASSWORD:-fs_agent_db_pass_2026}@postgres:5432/fs_agent
+      REDIS_URL: redis://:${REDIS_PASSWORD:-fs_redis_pass_2026}@redis:6379
       NATS_URL: nats://nats:4222
       CMS_URL: http://cms:4201
       RAG_URL: http://rag:4300
       NOTIFICATION_URL: http://notification:4208
       NODE_ENV: ${NODE_ENV:-}
       PUBLIC_URL: ${PUBLIC_URL:-}
-      JWT_SECRET: ${JWT_SECRET:-}
-      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
-      NATS_TOKEN: ${NATS_TOKEN:-}
+      JWT_SECRET: ${JWT_SECRET:-fangscript_super_secret_jwt_key_32chars_long}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-fangscript_internal_service_token_32chars}
+      NATS_TOKEN: ${NATS_TOKEN:-fs_nats_token_2026}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_CHAT_MODEL: ${OPENAI_CHAT_MODEL:-}
       OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-}
@@ -452,7 +452,7 @@ services:
   web:
     build: .
     restart: unless-stopped
-    ports: ["0.0.0.0:3000:3000"]
+    ports: ["0.0.0.0:${WEB_PORT:-3001}:3000"]
     environment:
       API_GATEWAY_URL: http://gateway:4100
   admin:
@@ -473,7 +473,7 @@ services:
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
       - --entrypoints.web.http.redirections.entrypoint.to=websecure
-      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@fangscript.com}
       - --certificatesresolvers.letsencrypt.acme.storage=/certificates/acme.json
       - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
     volumes:
@@ -485,7 +485,7 @@ services:
     profiles: ["automation"]
     ports: ["127.0.0.1:5678:5678"]
     environment:
-      N8N_ENCRYPTION_KEY: ${N8N_WEBHOOK_SECRET}
+      N8N_ENCRYPTION_KEY: ${N8N_WEBHOOK_SECRET:-fs_n8n_secret_2026}
       N8N_DIAGNOSTICS_ENABLED: "false"
     volumes: ["n8n-data:/home/node/.n8n"]
   backup:
@@ -493,7 +493,7 @@ services:
     profiles: ["backup"]
     restart: on-failure
     environment:
-      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-fs_postgres_pass_2026_secure}
       BACKUP_BUCKET: ${BACKUP_BUCKET:-}
       BACKUP_ENDPOINT: ${BACKUP_ENDPOINT:-}
       AWS_ACCESS_KEY_ID: ${BACKUP_ACCESS_KEY_ID:-}
