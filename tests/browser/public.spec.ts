@@ -112,12 +112,46 @@ test("3D failure leaves readable content and navigation available", async ({ pag
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.getByRole("link", { name: "Book a discovery call" }).first()).toBeVisible();
 });
-test("unpublished CMS records are not replaced by fallback content", async ({ page }) => {
+test("canonical services remain available while unpublished work stays hidden", async ({ page }) => {
   await page.route("**/api/v1/cms/public", (r) => r.fulfill({ json: { items: [] } }));
   await page.goto("/services");
-  await expect(page.locator(".service-card")).toHaveCount(0);
+  await expect(page.locator(".service-card")).toHaveCount(5);
   await page.goto("/work");
   await expect(page.locator(".project-card")).toHaveCount(0);
+});
+
+test("footer opens the independent client portal", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  await page.getByRole("link", { name: "Client portal", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Good to see you." })).toBeVisible();
+});
+
+test("published projects appear in the home carousel and intentionally empty FAQs stay empty", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.route("**/api/v1/cms/public", r => r.fulfill({json: {items: [1,2,3].map(i => ({id: String(i),slug: `work-${i}`,kind: "case-study",title: `Client work ${i}`,data: {description: "Published client project"}}))}}));
+  await page.goto("/");
+  await expect(page.locator(".work-carousel .project-card")).toHaveCount(3);
+  await page.getByRole("button", {name: "Next projects"}).click();
+  await expect.poll(() => page.locator(".work-carousel").evaluate(el => el.scrollLeft)).toBeGreaterThan(0);
+  await page.goto("/faq");
+  await expect(page.locator(".faq-list details")).toHaveCount(0);
+});
+
+test("an administrator can inspect and queue a failed background event", async ({ page }) => {
+  await page.route("**/api/v1/auth/me", r => r.fulfill({json: {name: "Owner",role: "admin"}}));
+  await page.route("**/api/v1/*/records?*", r => r.fulfill({json: {items: []}}));
+  await page.route("**/api/v1/gateway/status", r => r.fulfill({json: {modules: [{id: "crm",ready: true,eventBus: true,queuedEvents: 0,failedEvents: 1}]}}));
+  let queued = false;
+  await page.route("**/api/v1/crm/operations/failures", r => r.fulfill({json: {items: queued ? [] : [{id: "failed-event",title: "Event requires attention",error: "Database unavailable"}]}}));
+  await page.route("**/api/v1/crm/operations/failures/failed-event/retry", r => { queued = true; return r.fulfill({json: {status: "queued"}}); });
+  await page.goto("/admin/");
+  await page.getByRole("button", {name: "Connections", exact: true}).click();
+  await page.getByRole("button", {name: "Review failed events"}).click();
+  await expect(page.getByText("Database unavailable")).toBeVisible();
+  await page.getByRole("button", {name: "Retry event",exact: true}).click();
+  await expect(page.getByText("Database unavailable")).toHaveCount(0);
+  expect(queued).toBe(true);
 });
 test("CMS editor saves a real draft request and reports failure", async ({ page }) => {
   await page.route("**/api/v1/auth/me", (r) =>

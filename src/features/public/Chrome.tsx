@@ -47,12 +47,15 @@ export function SiteLayout({ children }: { children: ReactNode }) {
   const sections = Array.isArray(page?.data["sections"]) ? page.data["sections"] : [];
   const settings = items.find((i) => i.kind === "settings")?.data;
   const handleInternalNavigation = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const target = (event.target as HTMLElement).closest<HTMLAnchorElement>("a[href]");
     if (!target || target.target === "_blank" || target.hasAttribute("download")) return;
     const href = target.getAttribute("href");
     if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
     const url = new URL(href, window.location.origin);
     if (url.origin !== window.location.origin) return;
+    // These are independently mounted applications, outside the public router.
+    if (/^\/(admin|portal)(\/|$)/.test(url.pathname)) return;
     event.preventDefault();
     setMenu(false);
     void navigate({ to: url.pathname + url.search + url.hash });

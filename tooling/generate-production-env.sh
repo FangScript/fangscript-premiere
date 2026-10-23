@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
+umask 077
 
 # Generates a production env file for FangScript Lab.
 # The generated file is intentionally ignored by Git and must stay on the VPS.
@@ -28,7 +29,7 @@ random_secret() { openssl rand -hex 32; }
     "NATS_TOKEN=$(random_secret)" \
     "REDIS_PASSWORD=$(random_secret)" \
     "BOOTSTRAP_ADMIN_EMAIL=$ADMIN_EMAIL" \
-    'BOOTSTRAP_ADMIN_PASSWORD=@Fang_2004' \
+    "BOOTSTRAP_ADMIN_PASSWORD=$(random_secret)" \
     'SEED_CATALOG=true' \
     "DB_AUTH_PASSWORD=$(random_secret)" \
     "DB_CMS_PASSWORD=$(random_secret)" \

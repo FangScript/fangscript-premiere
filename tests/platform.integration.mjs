@@ -169,6 +169,7 @@ test("persisted lead, version conflict, publishing, proposal and invoice lifecyc
     status: "draft",
     data: {
       summary: "A test project",
+      email: clientEmail,
       currency: "PKR",
       taxPercent: 5,
       clientVisible: true,
@@ -176,6 +177,11 @@ test("persisted lead, version conflict, publishing, proposal and invoice lifecyc
     },
   });
   assert.equal(proposal.response.status, 201);
+  const operations = await request("/crm/operations/failures");
+  assert.equal(operations.response.status, 200);
+  assert.equal((await request("/crm/operations/failures", undefined, "GET", clientCookies)).response.status, 403);
+  const missingRecipient = await request("/proposal/records", {kind: "proposals",title: "Missing email",tenantId,status: "draft",data: {currency: "PKR",lines: [{description: "Work",quantity: 1,unitPrice: 100}]}});
+  assert.equal((await request(`/proposal/records/${missingRecipient.data.id}/action`, {action: "send",version: missingRecipient.data.version})).response.status, 400);
   const sent = await request("/proposal/records/" + proposal.data.id + "/action", {
     action: "send",
     version: proposal.data.version,
@@ -221,4 +227,17 @@ test("persisted lead, version conflict, publishing, proposal and invoice lifecyc
   assert.equal(publicPrivate.response.status, 401);
   const blocked = await request("/cms/internal/published", undefined, "GET", "");
   assert.equal(blocked.response.status, 404);
+});
+
+test("restarting auth preserves the bootstrap account", async () => {
+  const snapshot = () => execFileSync("docker", ["compose", "exec", "-T", "postgres", "psql", "-U", "postgres", "-d", "fs_auth", "-Atc", "SELECT id,status,data->>'role',md5(data->>'passwordHash') FROM records WHERE kind='users' ORDER BY id"], { encoding: "utf8" });
+  const before = snapshot();
+  execFileSync("docker", ["compose", "restart", "auth"], { stdio: "pipe" });
+  let ready = false;
+  for (let i = 0; i < 30; i++) {
+    try { if ((await request("/auth/login", { email: env.BOOTSTRAP_ADMIN_EMAIL, password: env.BOOTSTRAP_ADMIN_PASSWORD })).response.ok) { ready = true; break; } } catch {}
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+  assert.ok(ready, "Auth must become available after restart");
+  assert.equal(snapshot(), before, "Restart must not overwrite passwords, roles, or status");
 });

@@ -11,15 +11,12 @@ init_module() {
   echo "==> Configuring module: ${module} (database: ${db}, role: ${user})"
 
   psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname postgres -v pass="$pass" <<EOF
-DO \$\$
-BEGIN
-  IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '${user}') THEN
-    CREATE ROLE ${user} LOGIN PASSWORD :'pass';
-  ELSE
-    ALTER ROLE ${user} WITH LOGIN PASSWORD :'pass';
-  END IF;
-END
-\$\$;
+-- psql substitution must be outside a dollar-quoted procedural body.
+SELECT format('CREATE ROLE %I LOGIN PASSWORD %L', '${user}', :'pass')
+WHERE NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '${user}')\\gexec
+
+-- Explicit repair runs synchronize credentials without dropping any data.
+SELECT format('ALTER ROLE %I WITH LOGIN PASSWORD %L', '${user}', :'pass')\\gexec
 
 SELECT 'CREATE DATABASE ${db} OWNER ${user}'
 WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '${db}')\\gexec

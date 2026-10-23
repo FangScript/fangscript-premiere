@@ -516,6 +516,9 @@ body {
   display: flex;
   justify-content: space-between;
 }
+.work-controls { display: flex; justify-content: flex-end; gap: 24px; margin-bottom: 20px; }
+.project-grid.work-carousel { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 16px; }
+.work-carousel > .project-card { flex: 0 0 min(85vw, 580px); scroll-snap-align: start; }
 .project-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

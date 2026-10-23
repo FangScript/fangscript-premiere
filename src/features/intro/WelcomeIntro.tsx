@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useLocation } from "@tanstack/react-router";
 
 // Original monoline lettering: crisp at any size, with no font download.
 const letters = [
@@ -33,10 +34,12 @@ const letters = [
 ] as const;
 
 export function WelcomeIntro({ children }: { children: ReactNode }) {
-  const [visible, setVisible] = useState(true);
+  const { pathname } = useLocation();
+  const [visible, setVisible] = useState(pathname === "/");
   const [ready, setReady] = useState(false);
   const skip = useRef<HTMLButtonElement>(null);
   useEffect(() => {
+    if (pathname !== "/") { setVisible(false); return; }
     const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (preference.matches) {
       setVisible(false);
@@ -58,7 +61,7 @@ export function WelcomeIntro({ children }: { children: ReactNode }) {
       window.removeEventListener("keydown", dismiss);
       preference.removeEventListener("change", reduce);
     };
-  }, []);
+  }, [pathname]);
   useEffect(() => {
     if (!visible || !ready) return;
     const previous = document.body.style.overflow;
@@ -117,7 +120,7 @@ export function WelcomeIntro({ children }: { children: ReactNode }) {
       <noscript>
         <style>{".welcome-intro{display:none!important}"}</style>
       </noscript>
-      <div inert={visible && ready}>{children}</div>
+      <div inert={visible}>{children}</div>
     </>
   );
 }

@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { readdirSync } from "node:fs";
+import { readdirSync, cpSync } from "node:fs";
 const mode = process.argv[2];
 const run = (args, options = {}) => {
   const r = spawnSync(process.execPath, args, { stdio: "inherit", ...options });
@@ -26,5 +26,6 @@ if (mode === "public") {
       "--config",
       "apps/" + name + "/vite.config.ts",
     ]);
+    cpSync("apps/" + name + "/dist", ".output/public/" + name, { recursive: true });
   }
 } else throw Error("Use public, domain or build");

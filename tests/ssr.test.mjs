@@ -74,6 +74,11 @@ test("production server renders published CMS sections and SEO", async () => {
     assert.equal(apiResponse.status, 200);
     const apiJson = await apiResponse.json();
     assert.equal(apiJson.proxied, true);
+    await new Promise((resolve) => gateway.close(resolve));
+    const unavailable = await fetch(`http://127.0.0.1:${websitePort}/api/v1/auth/me`);
+    assert.equal(unavailable.status, 503);
+    assert.match(unavailable.headers.get("content-type"), /application\/json/);
+    assert.match((await unavailable.json()).error, /temporarily unavailable/);
   } finally {
     child.kill();
     await new Promise((r) => gateway.close(r));

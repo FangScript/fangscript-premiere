@@ -13,13 +13,15 @@ Business services use their own database and credentials on one PostgreSQL insta
 1. Install Node 24, Python 3.11+ for development checks, pnpm, and Docker with a running Linux engine.
 2. Run `pnpm install --frozen-lockfile`.
 3. Run `node tooling/prepare-env.mjs`. It generates private local secrets in `.env` without printing them. Read the local bootstrap email and password from that file to sign in; replace the initial password/account before production. Never commit this file.
-4. Run `docker compose up --build -d`. This starts databases, the event bus, independent APIs, gateway, admin, and portal. It does not start the public production image.
+4. Run `docker compose up --build -d`. This starts databases, the event bus, independent APIs, gateway, admin, portal, and the public production image (port 3001 by default).
 5. Run `pnpm dev`. Open the printed local URL. The public development server proxies `/api/v1`, `/admin`, and `/portal` to their independent local services.
 6. CMS seed data imports the complete five-category service catalogue. Illustrative showcase entries remain clearly labelled. Replace them with verified work through the CMS.
 
 If Docker is unavailable, the public frontend and both independent workspaces can still be built and visually tested. Persisted workflows require the backend; the UI shows unavailable or unconfigured states instead of claiming a successful submission.
 
 ## Configuration
+
+See `docs/deployment-repair.md` for the audit repairs, existing-database reconciliation, explicit administrator recovery, required secrets, and separate Coolify frontend networking. Production deployments must supply existing credentials; there are no shared fallback passwords. Normal auth restarts preserve the bootstrap account.
 
 Provider secrets stay server-side. Set a real `PUBLIC_URL`, `DOMAIN`, enquiry email, bootstrap account, and provider settings in `.env` before deployment. `OPENAI_API_KEY` enables AI generation and embeddings. Model identifiers are explicit environment settings. Cal.com requires a booking URL and webhook signing secret. Resend requires a verified sender and API key. R2 requires endpoint, bucket, access key, and secret; configure bucket CORS for the public origin and PUT/GET/HEAD with Content-Type to support signed uploads.
 

@@ -15,6 +15,8 @@ jobs:
       - run: pnpm typecheck && pnpm test:boundaries && pnpm test:domain
       - run: pnpm build:all
       - run: pnpm test:ssr
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:browser
       - run: sh tests/backup.sh
   ai:
     runs-on: ubuntu-latest
@@ -51,6 +53,7 @@ jobs:
         with: { node-version: 24 }
       - run: node tooling/prepare-env.mjs
       - run: docker compose up --build --wait --wait-timeout 300 postgres redis nats auth cms lead crm project proposal billing notification gateway
+      - run: sh tests/database-init.sh
       - run: node --test tests/platform.integration.mjs
       - if: always()
         run: docker compose logs --tail 100

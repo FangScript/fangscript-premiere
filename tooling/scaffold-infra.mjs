@@ -1,4 +1,8 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
+// This legacy scaffolder is for new skeletons, not migrations of deployed systems.
+if (existsSync("compose.yml") || existsSync("infra/postgres/init.sh")) {
+  throw new Error("Infrastructure already exists. Edit the maintained deployment files directly; regenerating this legacy skeleton would discard deployment fixes.");
+}
 const modules = JSON.parse(readFileSync("contracts/modules.json", "utf8"));
 const ai = ["rag", "chatbot", "agent"];
 const names = [...modules.map((m) => m.id), ...ai];

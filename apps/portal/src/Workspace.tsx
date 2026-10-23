@@ -594,21 +594,36 @@ export function Knowledge() {
     </>
   );
 }
-export function Connections() {
+export function Connections({ user }: { user: User }) {
+  const [failures, setFailures] = useState<{module: string; id: string; title: string; error: string}[]>([]);
+  const [busy, setBusy] = useState(false);
+  async function inspect(module: string) {
+    setBusy(true); setError("");
+    try { const result = await api(`/${module}/operations/failures`); setFailures(result.items.map((item: any) => ({...item, module}))); }
+    catch(e) { setError((e as Error).message); }
+    finally { setBusy(false); }
+  }
+  async function retry(module: string, id: string) {
+    setBusy(true); setError("");
+    try { await api(`/${module}/operations/failures/${id}/retry`, {method: "POST"}); await inspect(module); await load(); }
+    catch(e) { setError((e as Error).message); }
+    finally { setBusy(false); }
+  }
   const [status, setStatus] = useState<any[]>([]);
   const [error, setError] = useState("");
-  useEffect(() => {
-    api("/gateway/status")
+  const load = () => api("/gateway/status")
       .then((d) => setStatus(d.modules))
       .catch((e) => setError(e.message));
-  }, []);
+  useEffect(() => { void load(); }, []);
   return (
     <>
       <div className="notice">
         Provider credentials are configured on the server. Unconnected integrations remain
         unavailable.
       </div>
-      {error && <p className="notice error">{error}</p>}
+      <button className="button" onClick={() => void load()} disabled={busy}>Refresh status</button>
+      {failures.map(f => <article className="notice" key={f.id}><strong>{f.module}: {f.title}</strong><p>{f.error}</p><button className="button" disabled={busy} onClick={() => void retry(f.module, f.id)}>Retry event</button></article>)}
+      {error && <p role="alert" className="notice error">{error}</p>}
       <div className="connections-grid">
         {status.map((s) => (
           <article key={s.id}>
@@ -617,6 +632,8 @@ export function Connections() {
             <span className={"status " + (s.ready ? "active" : "pending")}>
               {s.ready ? "Connected" : "Unavailable"}
             </span>
+            {s.eventBus !== undefined && <p>Event connection: {s.eventBus ? "Connected" : "Unavailable"} · Queued: {s.queuedEvents ?? "—"} · Failed: {s.failedEvents ?? "—"}</p>}
+            {user.role === "admin" && s.failedEvents > 0 && <button className="button" disabled={busy} onClick={() => void inspect(s.id)}>Review failed events</button>}
             {Object.entries(s.integrations || {}).map(([name, connected]) => (
               <p key={name}>
                 {name}: {connected ? "Configured" : "Not connected"}

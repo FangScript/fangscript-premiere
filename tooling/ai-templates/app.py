@@ -33,9 +33,11 @@ async def auth(request,admin=False):
         claims=jwt.decode(request.cookies.get('fs_access',''),secret,algorithms=['HS256'],issuer='fangscript',audience='fangscript-platform')
         if not claims.get('sub') or await cache.get('session:'+claims.get('sid',''))!='active': raise ValueError()
         if claims.get('role') not in (['admin'] if admin else ['admin','team']): raise HTTPException(403,'Team access required')
-        if request.method!='GET' and request.headers.get('origin') and request.headers['origin']!=os.getenv('PUBLIC_URL'):
-            origin=urlparse(request.headers['origin'])
-            if os.getenv('NODE_ENV')=='production' or origin.hostname not in ['localhost','127.0.0.1']: raise HTTPException(403,'Origin not allowed')
+        if request.method not in ['GET','HEAD','OPTIONS'] and request.headers.get('origin'):
+            bypass=os.getenv('ALLOW_ALL_ORIGINS')=='true' and os.getenv('NODE_ENV')!='production'
+            origin=request.headers['origin'].rstrip('/')
+            expected=os.getenv('PUBLIC_URL','http://localhost:8080').rstrip('/')
+            if not bypass and origin!=expected: raise HTTPException(403,'Origin not allowed')
         return claims
     except HTTPException: raise
     except Exception: raise HTTPException(401,'Please sign in again')

@@ -229,7 +229,7 @@ function App() {
           ) : section.id === "analytics" ? (
             <FunnelReport />
           ) : section.id === "settings" ? (
-            <Connections />
+            <Connections user={user} />
           ) : (
             <>
               {section.id === "marketing" && kind === "drafts" && (

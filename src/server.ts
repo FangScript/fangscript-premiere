@@ -123,7 +123,15 @@ async function proxyApiGateway(request: Request): Promise<Response | undefined> 
     // @ts-expect-error duplex required by node fetch when body is a ReadableStream
     init.duplex = "half";
   }
-  return fetch(target, init);
+  try {
+    return await fetch(target, { ...init, signal: AbortSignal.timeout(120_000) });
+  } catch (error) {
+    console.error("API gateway unavailable", error);
+    return Response.json(
+      { error: "The API service is temporarily unavailable. Please try again shortly." },
+      { status: 503, headers: { "cache-control": "no-store" } },
+    );
+  }
 }
 
 export default {

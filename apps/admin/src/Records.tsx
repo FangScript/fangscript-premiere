@@ -252,13 +252,8 @@ export function Editor({
                   status,
                   "draft",
                   "new",
-                  "open",
+                  ...(item ? ["open", "qualified", "won", "lost", "complete", "disabled"] : []),
                   "active",
-                  "qualified",
-                  "won",
-                  "lost",
-                  "complete",
-                  "disabled",
                 ]),
               ).map((s) => (
                 <option key={s}>{s}</option>

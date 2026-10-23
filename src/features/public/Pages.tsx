@@ -58,7 +58,7 @@ export function ServiceCards() {
 function useProjects() {
   const { data } = useContent();
   const projects = contentItems(data).filter((i) => i.kind === "case-study");
-  return projects
+  return Array.isArray(data?.items)
     ? projects.map((i) => ({
         id: i.slug,
         title: i.title,
@@ -70,12 +70,19 @@ function useProjects() {
       }))
     : demonstrations.map((p) => ({ ...p, demo: true }));
 }
-function ProjectGrid({ limit, filter = "all" }: { limit?: number; filter?: string }) {
+function ProjectGrid({ limit, filter = "all", carousel = false }: { limit?: number; filter?: string; carousel?: boolean }) {
+  const track = useRef<HTMLDivElement>(null);
   const projects = useProjects()
     .filter((p) => filter === "all" || p.category === filter)
     .slice(0, limit);
+  if (!projects.length) return <p className="empty-editorial">No published projects in this selection yet.</p>;
   return (
-    <div className="project-grid">
+    <>
+    {carousel && projects.length > 1 && <div className="work-controls" aria-label="Work carousel controls">
+      <button type="button" className="text-link" onClick={() => track.current?.scrollBy({ left: -track.current.clientWidth, behavior: "smooth" })}>Previous projects ←</button>
+      <button type="button" className="text-link" onClick={() => track.current?.scrollBy({ left: track.current.clientWidth, behavior: "smooth" })}>Next projects →</button>
+    </div>}
+    <div ref={track} className={carousel ? "project-grid work-carousel" : "project-grid"} aria-label={carousel ? "Selected work" : undefined}>
       {projects.map((p, i) => (
         <a className={"project-card project-" + i} href={"/work/" + p.id} key={p.id}>
           <div className="project-image">
@@ -100,6 +107,7 @@ function ProjectGrid({ limit, filter = "all" }: { limit?: number; filter?: strin
         </a>
       ))}
     </div>
+    </>
   );
 }
 export function HomePage() {
@@ -263,7 +271,7 @@ export function HomePage() {
             Explore our work <ArrowUpRight size={17} />
           </a>
         </div>
-        <ProjectGrid limit={2} />
+        <ProjectGrid carousel />
       </section>
       <Process />
       <section className="section container faq-split">
@@ -484,7 +492,7 @@ export function AboutPage() {
 function FAQList({ limit }: { limit?: number }) {
   const { data } = useContent();
   const records = contentItems(data).filter((i) => i.kind === "faq");
-  const items = records ? records.map((i) => [i.title, String(i.data["answer"] || "")]) : faqs;
+  const items = Array.isArray(data?.items) ? records.map((i) => [i.title, String(i.data["answer"] || "")]) : faqs;
   return (
     <div className="faq-list">
       {items.slice(0, limit).map(([q, a]) => (
@@ -561,6 +569,8 @@ export function InsightsPage({ slug }: { slug?: string }) {
   );
 }
 export function ContactPage() {
+  const [interactive, setInteractive] = useState(false);
+  useEffect(() => setInteractive(true), []);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [done, setDone] = useState(false);
@@ -611,6 +621,7 @@ export function ContactPage() {
           </a>
         </div>
         <form className="clay-form" ref={form} onSubmit={submit}>
+          <fieldset disabled={!interactive || busy} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
           {done ? (
             <div role="status" className="success-panel">
               <Check size={32} />
@@ -705,6 +716,7 @@ export function ContactPage() {
               </button>
             </>
           )}
+          </fieldset>
         </form>
       </section>
     </SiteLayout>
