@@ -5,7 +5,7 @@ for (const name of ["admin", "portal"]) {
   const pkg = JSON.parse(readFileSync("tooling/workspace-template/package.json", "utf8"));
   pkg.name = "@fangscript/" + name;
   writeFileSync(dir + "/package.json", JSON.stringify(pkg, null, 2));
-  for (const file of ["App.tsx", "Workspace.tsx", "Records.tsx", "Operations.tsx"])
+  for (const file of ["App.tsx", "Workspace.tsx", "Records.tsx", "Operations.tsx", "Hosting.tsx", "hosting.css"])
     writeFileSync(
       dir + "/src/" + file,
       readFileSync("tooling/workspace-template/" + file, "utf8").replace(

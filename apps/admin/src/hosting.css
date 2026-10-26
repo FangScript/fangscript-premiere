@@ -1,0 +1,142 @@
+.hosting-panel {
+  padding: 24px;
+  border: 1px solid #ffffff18;
+  border-radius: 20px;
+  background: #ffffff03;
+}
+.hosting-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.hosting-heading h2 {
+  margin: 0 0 10px;
+  font-size: 25px;
+}
+.hosting-panel p {
+  color: #aaa;
+  line-height: 1.6;
+}
+.hosting-layout {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  gap: 24px;
+}
+.hosting-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.hosting-projects button {
+  padding: 16px;
+  text-align: left;
+  border: 1px solid #ffffff20;
+  border-radius: 12px;
+  background: #ffffff05;
+  color: inherit;
+  overflow-wrap: anywhere;
+}
+.hosting-projects button.selected {
+  border-color: #d5b778;
+}
+.hosting-projects small,
+.hosting-projects span {
+  display: block;
+  margin-top: 8px;
+  color: #aaa;
+  font-size: 12px;
+}
+.hosting-projects strong {
+  font-size: 15px;
+}
+.hosting-form,
+.hosting-detail {
+  border: 1px solid #ffffff18;
+  border-radius: 14px;
+  padding: 24px;
+  min-width: 0;
+}
+.hosting-form fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.hosting-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+.hosting-form input,
+.hosting-form select,
+.hosting-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: #161916;
+  color: #eee;
+  border: 1px solid #ffffff25;
+  border-radius: 8px;
+  padding: 12px;
+  font: inherit;
+}
+.hosting-form textarea {
+  min-height: 90px;
+}
+.hosting-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.hosting-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 22px 0;
+}
+.hosting-logs {
+  max-height: 380px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #0e110e;
+  padding: 16px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.hosting-address {
+  overflow-wrap: anywhere;
+  color: #e1c487 !important;
+}
+.hosting-detail p {
+  overflow-wrap: anywhere;
+}
+.hosting-panel button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+@media (max-width: 850px) {
+  .hosting-layout {
+    grid-template-columns: 1fr;
+  }
+  .hosting-projects {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+  .hosting-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .hosting-panel,
+  .hosting-form,
+  .hosting-detail {
+    padding: 16px;
+  }
+  .hosting-pair {
+    grid-template-columns: 1fr;
+  }
+}

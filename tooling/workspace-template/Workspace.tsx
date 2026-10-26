@@ -133,6 +133,7 @@ export const sections: Section[] = [
           kinds: ["workflows", "runs"],
           icon: Zap,
         },
+        { id: "hosting", label: "Project hosting", module: "cms", kinds: [], icon: Layers },
         { id: "agents", label: "AI workspace", module: "agent", kinds: [], icon: Bot },
         { id: "knowledge", label: "Knowledge base", module: "rag", kinds: [], icon: BookOpen },
         {

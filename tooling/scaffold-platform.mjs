@@ -68,6 +68,10 @@ for (const [name, config] of Object.entries(modules)) {
   );
   if (name === "cms")
     writeFileSync(join(dir, "catalog.json"), readFileSync("contracts/catalog.json"));
+  if (name === "cms") {
+    for (const file of ["hosting.ts", "hosting-provider.ts"]) writeFileSync(join(dir, "src", file), readFileSync(join("tooling/templates", file)));
+    writeFileSync(join(dir, "migrations/002_hosted_projects.sql"), readFileSync("tooling/templates/002_hosted_projects.sql"));
+  }
   if (name === "audit")
     writeFileSync(
       join(dir, "migrations/002_immutable.sql"),

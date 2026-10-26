@@ -12,7 +12,7 @@ if (mode === "public") {
 } else if (mode === "domain") {
   for (const name of readdirSync("services"))
     if (!["gateway", "rag", "chatbot", "agent"].includes(name))
-      run(["--test", "services/" + name + "/test/domain.test.ts"]);
+      run(["--test", ...readdirSync("services/" + name + "/test").filter(f => f.endsWith(".test.ts")).map(f => "services/" + name + "/test/" + f)]);
 } else if (mode === "build") {
   run(["node_modules/vite/bin/vite.js", "build"], {
     env: { ...process.env, NITRO_PRESET: "node-server", NODE_ENV: "production" },

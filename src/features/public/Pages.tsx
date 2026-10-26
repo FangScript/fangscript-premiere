@@ -67,8 +67,9 @@ function useProjects() {
         description: i.data["description"] || "",
         category: i.data["category"] || "technology",
         demo: !!i.data["demo"],
+        liveUrl: i.data["openLivePreview"] && typeof i.data["liveUrl"] === "string" && /^https:\/\//.test(i.data["liveUrl"]) ? i.data["liveUrl"] : "",
       }))
-    : demonstrations.map((p) => ({ ...p, demo: true }));
+    : demonstrations.map((p) => ({ ...p, demo: true, liveUrl: "" }));
 }
 function ProjectGrid({ limit, filter = "all", carousel = false }: { limit?: number; filter?: string; carousel?: boolean }) {
   const track = useRef<HTMLDivElement>(null);
@@ -84,7 +85,7 @@ function ProjectGrid({ limit, filter = "all", carousel = false }: { limit?: numb
     </div>}
     <div ref={track} className={carousel ? "project-grid work-carousel" : "project-grid"} aria-label={carousel ? "Selected work" : undefined}>
       {projects.map((p, i) => (
-        <a className={"project-card project-" + i} href={"/work/" + p.id} key={p.id}>
+        <a className={"project-card project-" + i} href={p.liveUrl || "/work/" + p.id} target={p.liveUrl ? "_blank" : undefined} rel={p.liveUrl ? "noopener noreferrer" : undefined} key={p.id}>
           <div className="project-image">
             {p.image ? (
               <img src={p.image} alt={p.title} loading="lazy" width="900" height="640" />

@@ -1,3 +1,4 @@
+import { Hosting } from "./Hosting";
 import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Menu, ChevronRight, ArrowUpRight, Plus, Search, RefreshCw, LogOut } from "lucide-react";
@@ -114,7 +115,7 @@ function App() {
         </div>
       </div>
     );
-  const special = ["overview", "agents", "knowledge", "settings", "analytics"].includes(section.id);
+  const special = ["overview", "agents", "knowledge", "settings", "analytics", "hosting"].includes(section.id);
   const Icon = section.icon;
   return (
     <div className="workspace">
@@ -228,6 +229,8 @@ function App() {
             <Knowledge />
           ) : section.id === "analytics" ? (
             <FunnelReport />
+          ) : section.id === "hosting" ? (
+            <Hosting user={user} />
           ) : section.id === "settings" ? (
             <Connections user={user} />
           ) : (

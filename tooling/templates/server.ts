@@ -50,6 +50,12 @@ app.post(prefix+'/operations/failures/:id/retry',async(req:any)=>{
  });
 });
 
+
+if(config.name==='cms'){
+ const {registerHosting}=await import('./hosting.ts');
+ registerHosting(app,user,admin,redis,{pool,transaction,createRecord,emit});
+}
+
 app.get(prefix+'/capabilities',async()=>({module:config.name,kinds:config.kinds,configured:true}));
 app.get(prefix+'/records',async(req,reply)=>{const u=await user(req);const q=z.object({kind:z.string().optional(),limit:z.coerce.number().int().min(1).max(100).default(30),offset:z.coerce.number().int().min(0).default(0),search:z.string().max(200).optional()}).parse(req.query);if(q.kind&&!(config.kinds as readonly string[]).includes(q.kind))fail(400,'Unknown resource');if(config.name==='auth'){admin(u);}if(config.name==='notification')admin(u);if(['audit','analytics','notification','automation','marketing','lead','crm','cms'].includes(config.name))staff(u);const args:any[]=[];const filters:string[]=[];if(u.role==='client'){if(!u.tenantId)fail(403,'No company assigned');args.push(u.tenantId);filters.push('tenant_id=$'+args.length,"coalesce(data->>'clientVisible','true')!='false'","status NOT IN ('draft','rejected')");}if(q.kind){args.push(q.kind);filters.push('kind=$'+args.length);}if(q.search){args.push(q.search);filters.push("search @@ plainto_tsquery('english',$"+args.length+')');}const where=filters.length?' WHERE '+filters.join(' AND '):'';args.push(q.limit,q.offset);const {rows}=await pool.query('SELECT id,tenant_id,kind,title,slug,status,data,version,created_at,updated_at FROM records'+where+' ORDER BY created_at DESC LIMIT $'+(args.length-1)+' OFFSET $'+args.length,args);return {items:rows.map(r=>config.name==='auth'?{...r,data:{email:r.data.email,role:r.data.role,tenantId:r.data.tenantId}}:r),limit:q.limit,offset:q.offset};});
 app.get(prefix+'/records/:id',async(req:any)=>{const u=await user(req);if(['auth','notification'].includes(config.name))admin(u);if(u.role==='client'&&!['project','file','proposal','billing'].includes(config.name))fail(403,'This module is private');const id=z.string().uuid().parse(req.params.id);const r=(await pool.query('SELECT * FROM records WHERE id=$1',[id])).rows[0];if(!r||!canRead(u,r))fail(404,'Record not found');if(u.role==='client'&&['draft','rejected'].includes(r.status))fail(404,'Record not found');if(config.name==='auth')delete r.data.passwordHash;return r;});
