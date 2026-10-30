@@ -346,7 +346,7 @@ export function Hosting({ user }: { user: User }) {
                 <label>
                   Repository access
                   <select
-                    disabled={!!selected}
+                    disabled={!overview?.privateRepositories}
                     value={form.privateRepo ? "private" : "public"}
                     onChange={(e) => change("privateRepo", e.target.value === "private")}
                   >
@@ -355,6 +355,9 @@ export function Hosting({ user }: { user: User }) {
                       Private — connected GitHub App
                     </option>
                   </select>
+                  {selected && overview?.privateRepositories && (
+                    <small>Switch to the connected GitHub App if GitHub blocks public cloning.</small>
+                  )}
                 </label>
                 <label>
                   Application type

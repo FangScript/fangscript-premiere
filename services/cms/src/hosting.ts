@@ -227,9 +227,9 @@ export function registerHosting(
         throw Object.assign(new Error("Wait for the current operation before editing."), {
           statusCode: 409,
         });
-      if (input.slug !== row.slug || input.privateRepo !== row.input.privateRepo)
+      if (input.slug !== row.slug)
         throw Object.assign(
-          new Error("The address and repository access type cannot be changed after import."),
+          new Error("The project address cannot be changed after import."),
           { statusCode: 400 },
         );
       applicationPayload(input, row.id);
@@ -258,7 +258,6 @@ export function registerHosting(
             "server_uuid",
             "environment_name",
             "destination_uuid",
-            "github_app_uuid",
             "instant_deploy",
           ])
             delete payload[key];
