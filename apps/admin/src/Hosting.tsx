@@ -343,22 +343,10 @@ export function Hosting({ user }: { user: User }) {
                 <p className="hosting-address">
                   https://{form.slug || "your-project"}.{overview?.domain || "your-domain.com"}
                 </p>
-                <label>
-                  Repository access
-                  <select
-                    disabled={!overview?.privateRepositories}
-                    value={form.privateRepo ? "private" : "public"}
-                    onChange={(e) => change("privateRepo", e.target.value === "private")}
-                  >
-                    <option value="public">Public repository</option>
-                    <option value="private" disabled={!overview?.privateRepositories}>
-                      Private — connected GitHub App
-                    </option>
-                  </select>
-                  {selected && overview?.privateRepositories && (
-                    <small>Switch to the connected GitHub App if GitHub blocks public cloning.</small>
-                  )}
-                </label>
+                <p>
+                  GitHub access is automatic: the connected GitHub App is used when configured;
+                  otherwise Coolify clones publicly accessible repositories without credentials.
+                </p>
                 <label>
                   Application type
                   <select value={form.mode} onChange={(e) => change("mode", e.target.value)}>

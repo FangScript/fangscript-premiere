@@ -73,7 +73,7 @@ export function registerHosting(
     await save(c, row);
     try {
       const created = await provider(
-        row.input.privateRepo ? "/applications/private-github-app" : "/applications/public",
+        payload.github_app_uuid ? "/applications/private-github-app" : "/applications/public",
         "POST",
         payload,
       );

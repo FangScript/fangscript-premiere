@@ -117,7 +117,9 @@ export function applicationPayload(
     server_uuid: env.HOSTING_SERVER_UUID,
     environment_name: env.HOSTING_ENVIRONMENT || "production",
     ...(env.HOSTING_DESTINATION_UUID ? { destination_uuid: env.HOSTING_DESTINATION_UUID } : {}),
-    ...(input.privateRepo ? { github_app_uuid: env.HOSTING_GITHUB_APP_UUID } : {}),
+    // Use the connected GitHub App for every GitHub repository when available.
+    // This keeps public and private repositories on the same authenticated path.
+    ...(env.HOSTING_GITHUB_APP_UUID ? { github_app_uuid: env.HOSTING_GITHUB_APP_UUID } : {}),
     name: `fangscript-preview-${id}`,
     git_repository: input.repository.replace(/\/$/, ""),
     git_branch: input.branch,
