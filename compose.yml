@@ -1,4 +1,11 @@
 name: fangscript
+networks:
+  # Coolify creates this network on the host. Keeping it external makes the
+  # CMS -> Coolify API connection and the standalone website -> gateway route
+  # survive every application redeploy.
+  coolify:
+    name: ${HOSTING_COOLIFY_NETWORK:-coolify}
+    external: true
 services:
   postgres:
     image: pgvector/pgvector:pg17
@@ -90,6 +97,9 @@ services:
       HOSTING_GITHUB_APP_UUID: ${HOSTING_GITHUB_APP_UUID:-}
       HOSTING_MEMORY_LIMIT: ${HOSTING_MEMORY_LIMIT:-}
       HOSTING_CPU_LIMIT: ${HOSTING_CPU_LIMIT:-}
+    networks:
+      default: {}
+      coolify: {}
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_started }
@@ -459,6 +469,11 @@ services:
       RAG_URL: http://rag:4300
       CHATBOT_URL: http://chatbot:4300
       AGENT_URL: http://agent:4300
+    networks:
+      default: {}
+      coolify:
+        aliases:
+          - fangscript-api
   web:
     build: .
     restart: unless-stopped

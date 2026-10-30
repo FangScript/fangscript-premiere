@@ -16,6 +16,11 @@ HOSTING_BASE_DOMAIN=fangscriptlab.com
 
 The URL is the Coolify origin, without `/api/v1`. The token requires read, write and deploy permissions for that team. Keep it in deployment environment settings, never a frontend variable or a committed file. The CMS container needs network access to that URL. Use HTTPS across untrusted networks; an internal HTTP URL can be used on a trusted server network.
 
+The maintained `compose.yml` attaches the CMS to Coolify's existing external Docker network named
+`coolify`, so this connection survives redeploys. Override the name with `HOSTING_COOLIFY_NETWORK`
+only if your server uses a different network name. The gateway is also attached with the stable alias
+`fangscript-api`; a separately deployed website can use `API_GATEWAY_URL=http://fangscript-api:4100`.
+
 Optional runtime settings: `HOSTING_ENVIRONMENT` (default `production`), `HOSTING_DESTINATION_UUID` (when the server has multiple destinations), `HOSTING_GITHUB_APP_UUID` (private repositories), `HOSTING_MEMORY_LIMIT` (default `512m`), `HOSTING_CPU_LIMIT` (default `1`). These limits constrain running applications; builds still need enough server capacity. Private repositories require installing the connected GitHub App with access to those repositories.
 
 Point `*.fangscriptlab.com` to the preview server in DNS, or add individual project records. Preserve existing website, API, mail and Coolify records. Ensure the proxy can issue certificates for project hosts and that ports 80/443 reach it. The feature assigns the hostname in Coolify; it does not manage DNS records. If using a different base domain, configure its wildcard instead. Domain names such as `admin`, `api` and `coolify` are reserved by the importer, but existing manually configured hostnames must also be avoided.

@@ -48,7 +48,7 @@ test('only a finished build and running container can become ready', () => {
   assert.equal(readableLogs('[{"output":"test-token ok"}]','test-token'),'[redacted] ok');
 });
 
-function harness(role='admin') {
+function harness(role='admin', listApplication=true) {
   const routes = new Map<string,Function>(); let row: any = { id:'11111111-1111-4111-8111-111111111111',slug:input.slug,input,url:'https://novexa.fangscriptlab.com',status:'draft',application_uuid:null,deployment_uuid:null };
   const calls: string[]=[]; const records:any[]=[]; let failure=false; let build='finished'; let cached=true;
   const c = { release(){}, async query(sql:string,args:any[]=[]) {
@@ -63,7 +63,7 @@ function harness(role='admin') {
   const provider=async (path:string,method='GET',body?:any) => {
     calls.push(method+' '+path);
     if(path==='/applications/public') { if(failure)throw new Error('timeout'); return {uuid:'coolify-app'}; }
-    if(path==='/applications')return [{uuid:'coolify-app',name:'fangscript-preview-'+row.id}];
+    if(path==='/applications')return listApplication ? [{uuid:'coolify-app',name:'fangscript-preview-'+row.id}] : [];
     if(path.startsWith('/deploy?'))return {deployments:[{resource_uuid:'coolify-app',deployment_uuid:'deployment'}]};
     if(path==='/deployments/deployment')return {status:build,logs:'build complete'};
     if(path==='/applications/coolify-app')return {status:'running:healthy'};
@@ -96,6 +96,11 @@ test('prepare, deploy, status and publish reuse one application and publish the 
 test('ambiguous creation is reconciled without provisioning duplicate applications',async()=>{
   const old={...process.env};Object.assign(process.env,env);
   try{const h=harness();h.fail();await assert.rejects(h.invoke('post','/:id/prepare'));assert.equal(h.row.status,'provisioning');await assert.rejects(h.invoke('post','/:id/prepare'),{statusCode:409});await h.invoke('get','/:id');assert.equal(h.row.application_uuid,'coolify-app');assert.equal(h.calls.filter(x=>x==='POST /applications/public').length,1);}
+  finally{for(const k of Object.keys(env)){if(old[k]===undefined)delete process.env[k];else process.env[k]=old[k];}}
+});
+test('unconfirmed creation becomes retryable when Coolify has no matching application',async()=>{
+  const old={...process.env};Object.assign(process.env,env);
+  try{const h=harness('admin',false);h.fail();await assert.rejects(h.invoke('post','/:id/prepare'));await h.invoke('get','/:id');assert.equal(h.row.status,'failed');assert.match(h.row.error,/retry preparation/);}
   finally{for(const k of Object.keys(env)){if(old[k]===undefined)delete process.env[k];else process.env[k]=old[k];}}
 });
 test('failed builds cannot be published and environment responses contain no values',async()=>{

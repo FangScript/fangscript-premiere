@@ -98,8 +98,12 @@ export function registerHosting(
         row.status = "draft";
         row.error = null;
       } else {
+        // A timed-out create request must not leave the project permanently
+        // stuck in "Creating application". The next explicit Prepare/Deploy
+        // action can safely retry after the administrator has checked Coolify.
+        row.status = "failed";
         row.error =
-          "Creation is unconfirmed. Check Coolify for this project before taking further action.";
+          "Coolify did not confirm application creation. Check Coolify, then retry preparation.";
       }
     }
     if (row.status === "submitting") {
