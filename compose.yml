@@ -37,16 +37,25 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
+    networks:
+      default:
+        aliases: [fangscript-postgres]
   redis:
     image: redis:7-alpine
     restart: unless-stopped
     command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD:?Set REDIS_PASSWORD in the deployment environment}"]
     volumes: ["redis-data:/data"]
+    networks:
+      default:
+        aliases: [fangscript-redis]
   nats:
     image: nats:2-alpine
     restart: unless-stopped
     command: ["-js", "-sd", "/data", "--auth", "${NATS_TOKEN:?Set NATS_TOKEN in the deployment environment}"]
     volumes: ["nats-data:/data"]
+    networks:
+      default:
+        aliases: [fangscript-nats]
   auth:
     build: ./services/auth
     restart: unless-stopped
@@ -78,9 +87,9 @@ services:
     restart: unless-stopped
     environment:
       PORT: 4201
-      DATABASE_URL: postgresql://fs_cms:${DB_CMS_PASSWORD:?Set DB_CMS_PASSWORD in the deployment environment}@postgres:5432/fs_cms
-      REDIS_URL: redis://:${REDIS_PASSWORD:?Set REDIS_PASSWORD in the deployment environment}@redis:6379
-      NATS_URL: nats://nats:4222
+      DATABASE_URL: postgresql://fs_cms:${DB_CMS_PASSWORD:?Set DB_CMS_PASSWORD in the deployment environment}@fangscript-postgres:5432/fs_cms
+      REDIS_URL: redis://:${REDIS_PASSWORD:?Set REDIS_PASSWORD in the deployment environment}@fangscript-redis:6379
+      NATS_URL: nats://fangscript-nats:4222
       NODE_ENV: ${NODE_ENV:-production}
       PUBLIC_URL: ${PUBLIC_URL:-}
       JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in the deployment environment}
