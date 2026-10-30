@@ -14,7 +14,7 @@ HOSTING_SERVER_UUID=your-server-uuid
 HOSTING_BASE_DOMAIN=fangscriptlab.com
 ```
 
-The URL is the Coolify origin, without `/api/v1`. The token requires read, write and deploy permissions for that team. Keep it in deployment environment settings, never a frontend variable or a committed file. The CMS container needs network access to that URL. Use HTTPS across untrusted networks; an internal HTTP URL can be used on a trusted server network.
+The URL is the Coolify origin, without `/api/v1`. The token requires `read`, `read:sensitive`, `write`, and `deploy` permissions for that team. `read:sensitive` is required for Coolify to return deployment logs; it can also expose other sensitive values through supported endpoints, so use a dedicated token and store it only in the CMS runtime environment. Never put it in a frontend variable or a committed file. The CMS container needs network access to that URL. Use HTTPS across untrusted networks; an internal HTTP URL can be used on a trusted server network.
 
 The maintained `compose.yml` attaches the CMS to Coolify's existing external Docker network named
 `coolify`, so this connection survives redeploys. Override the name with `HOSTING_COOLIFY_NETWORK`

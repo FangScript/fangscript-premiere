@@ -570,7 +570,10 @@ export function Hosting({ user }: { user: User }) {
               <details open={!!selected.logs}>
                 <summary>Build logs</summary>
                 <pre className="hosting-logs">
-                  {selected.logs || "No logs yet. Refresh status after starting a deployment."}
+                  {selected.logs ||
+                    (selected.status === "failed"
+                      ? "Coolify reported a failed build but returned no deployment logs. The Coolify API token may need read:sensitive permission. Update HOSTING_COOLIFY_TOKEN on the CMS service, redeploy CMS, then refresh status & logs here."
+                      : "No deployment logs have been returned yet. Start or refresh a deployment to load its logs.")}
                 </pre>
               </details>
             </article>
