@@ -142,6 +142,18 @@ export function applicationPayload(
     limits_cpus: env.HOSTING_CPU_LIMIT || "1",
   };
 }
+export function applicationUpdatePayload(
+  input: HostingInput,
+  id: string,
+  env: NodeJS.ProcessEnv = process.env,
+) {
+  const payload = applicationPayload(input, id, env);
+  // Coolify's create endpoint accepts a clone URL and normalizes GitHub sources
+  // to owner/repository. Its update endpoint writes git_repository directly,
+  // so sending the URL again makes the deployer prepend github.com twice.
+  payload.git_repository = new URL(input.repository).pathname.replace(/^\/+|\/+$/g, "");
+  return payload;
+}
 export function coolifyClient(env: NodeJS.ProcessEnv = process.env, fetcher: typeof fetch = fetch) {
   return async (path: string, method = "GET", body?: unknown) => {
     if (!hostingConfig(env).configured)

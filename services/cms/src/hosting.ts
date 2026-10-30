@@ -5,6 +5,7 @@ import {
   hostingInput,
   hostingConfig,
   applicationPayload,
+  applicationUpdatePayload,
   coolifyClient,
   deploymentState,
   readableLogs,
@@ -251,7 +252,7 @@ export function registerHosting(
         if (!row.application_uuid) {
           await prepare(c, row);
         } else {
-          const payload: any = applicationPayload(hostingInput.parse(row.input), row.id);
+          const payload: any = applicationUpdatePayload(hostingInput.parse(row.input), row.id);
           for (const key of [
             "project_uuid",
             "server_uuid",
